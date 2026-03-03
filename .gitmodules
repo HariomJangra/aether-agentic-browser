@@ -1,0 +1,3 @@
+[submodule "Agentic AI/browser-automation"]
+	path = Agentic AI/browser-automation
+	url = https://github.com/HariomJangra/browser-automation.git
