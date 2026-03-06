@@ -33,6 +33,9 @@ dist/
 # Logs
 *.log
 
+# Third-party extensions (not licensed for redistribution)
+Backend/Extensions/AdGuard/
+
 # Editor
 .vs/
 .vscode/settings.json
