@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+duckduckgo-search
+numpy
+requests
+trafilatura
+sentence-transformers
+langchain
+langchain-groq
+python-dotenv
