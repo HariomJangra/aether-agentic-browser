@@ -21,7 +21,7 @@ using namespace winrt::Microsoft::Web::WebView2::Core;
 namespace winrt::Agentic_Browser::implementation
 {
     // Special home page URL
-    constexpr wchar_t HOME_PAGE_URL[] = L"file:///F:/Browser%20Development/frontend/HomePage/index.html";
+    constexpr wchar_t HOME_PAGE_URL[] = L"http://localhost:8000/";
 
     BrowserView::BrowserView()
     {
@@ -149,7 +149,7 @@ namespace winrt::Agentic_Browser::implementation
                     else
                     {
                         self->NavigateTo(
-                            L"file:///F:/Browser Development/frontend/HomePage/index.html"
+                            L"http://localhost:8000/"
                         );
                     }
                 }
