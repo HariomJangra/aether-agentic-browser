@@ -75,6 +75,7 @@ namespace winrt::Agentic_Browser::implementation
         // Create WebView2 environment with extensions enabled for MAIN WebView
         CoreWebView2EnvironmentOptions options;
         options.AreBrowserExtensionsEnabled(true);
+        options.AdditionalBrowserArguments(L"--enable-extensions --remote-debugging-port=9222 --disable-features=msExtensionsHub");
 
         // Main WebView - uses default user data folder
         auto env_task = CoreWebView2Environment::CreateWithOptionsAsync(

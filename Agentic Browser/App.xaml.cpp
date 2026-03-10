@@ -16,7 +16,7 @@ namespace winrt::Agentic_Browser::implementation
     /// </summary>
     App::App()
     {
-        SetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", L"--enable-extensions --remote-debugging-port=9222  --disable-features=msExtensionsHub");
+        //SetEnvironmentVariableW(L"WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", L"--enable-extensions --remote-debugging-port=9222  --disable-features=msExtensionsHub");
 
         // Xaml objects should not call InitializeComponent during construction.
         // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
