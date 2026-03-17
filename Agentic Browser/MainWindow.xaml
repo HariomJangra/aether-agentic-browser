@@ -30,6 +30,30 @@
                             <ControlTemplate TargetType="TabViewItem">
                                 <Grid Margin="2,2,2,0" Background="Transparent" MinHeight="34">
 
+                                    <Popup x:Name="HoverCardPopup" VerticalOffset="42" Opened="HoverCardPopup_Opened">
+                                        <Popup.ChildTransitions>
+                                            <TransitionCollection>
+                                                <EntranceThemeTransition FromVerticalOffset="-8" />
+                                            </TransitionCollection>
+                                        </Popup.ChildTransitions>
+
+                                        <Grid Width="260" Background="#fffefb" BorderBrush="#D2D2D2" BorderThickness="1" CornerRadius="8" Padding="12">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Text="{TemplateBinding Header}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis" Foreground="Black"/>
+
+                                            <TextBlock Grid.Row="1" Text="{TemplateBinding Tag}" FontSize="12" Foreground="#555555" Margin="0,2,0,10" TextTrimming="CharacterEllipsis" />
+
+                                            <Border x:Name="PreviewBorder" Grid.Row="2" Height="120" Background="#f4f2ef" CornerRadius="4" BorderBrush="#D2D2D2" BorderThickness="1">
+                                                <Image Stretch="UniformToFill" />
+                                            </Border>
+                                        </Grid>
+                                    </Popup>
+
                                     <Border x:Name="PillBorder" 
                                             Background="Transparent"
                                             CornerRadius="8" 
@@ -73,22 +97,37 @@
 
                                     <VisualStateManager.VisualStateGroups>
                                         <VisualStateGroup x:Name="CommonStates">
+
                                             <VisualState x:Name="Normal">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="Transparent" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="Transparent" />
+                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
+
                                             <VisualState x:Name="PointerOver">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverCardPopup" Storyboard.TargetProperty="IsOpen">
+                                                        <DiscreteObjectKeyFrame KeyTime="0:0:0.4">
+                                                            <DiscreteObjectKeyFrame.Value>
+                                                                <x:Boolean>True</x:Boolean>
+                                                            </DiscreteObjectKeyFrame.Value>
+                                                        </DiscreteObjectKeyFrame>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#E0E8F5" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="Transparent" />
+                                                    <Setter Target="PreviewBorder.Visibility" Value="Visible" />
                                                 </VisualState.Setters>
                                             </VisualState>
+
                                             <VisualState x:Name="Pressed">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#D0D8E5" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="Transparent" />
+                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
 
@@ -96,23 +135,37 @@
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#fffefb" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
+                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
+
                                             <VisualState x:Name="PointerOverSelected">
+                                                <Storyboard>
+                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverCardPopup" Storyboard.TargetProperty="IsOpen">
+                                                        <DiscreteObjectKeyFrame KeyTime="0:0:0.4">
+                                                            <DiscreteObjectKeyFrame.Value>
+                                                                <x:Boolean>True</x:Boolean>
+                                                            </DiscreteObjectKeyFrame.Value>
+                                                        </DiscreteObjectKeyFrame>
+                                                    </ObjectAnimationUsingKeyFrames>
+                                                </Storyboard>
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#fffefb" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
+                                                    <Setter Target="PreviewBorder.Visibility" Value="Collapsed" />
                                                 </VisualState.Setters>
                                             </VisualState>
+
                                             <VisualState x:Name="PressedSelected">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#fffefb" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
+                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
+
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
-
                                 </Grid>
                             </ControlTemplate>
                         </Setter.Value>

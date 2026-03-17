@@ -16,7 +16,6 @@ namespace winrt::Agentic_Browser::implementation
         void StopReloadAnimation();
         void UpdateReloadIcon();
 
-
         bool m_isAssistantOpen{ false };
         bool m_isLoading{ false };
         Microsoft::UI::Xaml::Media::Animation::Storyboard m_reloadStoryboard{ nullptr };
@@ -29,7 +28,25 @@ namespace winrt::Agentic_Browser::implementation
             winrt::Windows::Foundation::IInspectable const& sender,
             winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
 
+        void ToggleDownloadButton_Click(
+            winrt::Windows::Foundation::IInspectable const& sender,
+            winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+
         // --- Event Registrations ---
+
+        // --- NEW: Added for Hover Cards ---
+        //winrt::event_token UrlChanged(
+        //    Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring> const& handler)
+        //{
+        //    return m_urlChangedEvent.add(handler);
+        //}
+
+        //void UrlChanged(winrt::event_token const& token) noexcept
+        //{
+        //    m_urlChangedEvent.remove(token);
+        //}
+        // ----------------------------------
+
         winrt::event_token TitleChanged(
             Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring> const& handler)
         {
@@ -91,6 +108,7 @@ namespace winrt::Agentic_Browser::implementation
             winrt::Microsoft::UI::Xaml::Input::PointerRoutedEventArgs const& e);
 
         // --- Event Backing Fields ---
+        //winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_urlChangedEvent; // NEW
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_titleChangedEvent;
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_faviconChangedEvent;
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_newTabRequestedEvent;

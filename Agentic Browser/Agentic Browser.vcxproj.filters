@@ -198,6 +198,12 @@
     <None Include="Assets\Icons\rotate-right.svg" />
     <None Include="Assets\Icons\icons8-home.svg" />
     <None Include="Assets\Icons\icons8-close.svg" />
+    <None Include="Assets\Icons\icons8-ai.svg" />
+    <None Include="Assets\Icons\download.svg" />
+    <None Include="Assets\Icons\profile.svg" />
+    <None Include="Assets\Icons\bookmark.svg" />
+    <None Include="Assets\Icons\chain.svg" />
+    <None Include="Assets\Icons\equalizer.svg" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />

@@ -407,6 +407,10 @@ namespace winrt::Agentic_Browser::implementation
             auto uri = WebView().Source();
             auto uriStr = uri.AbsoluteUri();
 
+            // --- NEW: Tell MainWindow the URL updated ---
+            //m_urlChangedEvent(*this, uriStr);
+            // --------------------------------------------
+
             // Check if this is the special home page URL
             if (uriStr == HOME_PAGE_URL)
             {
@@ -473,7 +477,7 @@ namespace winrt::Agentic_Browser::implementation
             {
                 if (auto self = weak_this.get())
                 {
-                   
+
                     self->m_isLoading = false;
                     self->UpdateReloadIcon();
                     self->StopReloadAnimation();
@@ -735,6 +739,26 @@ namespace winrt::Agentic_Browser::implementation
         winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
     {
         m_newTabRequestedEvent(*this, L"edge://settings");
+    }
+
+    void BrowserView::ToggleDownloadButton_Click(
+        IInspectable const&,
+        RoutedEventArgs const&)
+    {
+        auto core = WebView().CoreWebView2();
+        if (!core)
+        {
+            return;
+        }
+
+        if (core.IsDefaultDownloadDialogOpen())
+        {
+            core.CloseDefaultDownloadDialog();
+        }
+        else
+        {
+            core.OpenDefaultDownloadDialog();
+        }
     }
 
 }

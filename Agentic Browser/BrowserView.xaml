@@ -270,6 +270,8 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <!-- URL textbox -->
                                 <ColumnDefinition Width="*"/>
+                                <!-- action icons -->
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
 
@@ -296,6 +298,29 @@
                                 FocusVisualMargin="0"
                                 UseSystemFocusVisuals="False"
                                 FontFamily="ms-appx:///Assets/Fonts/substance-lightitalic.otf#FSP DEMO - Substance Light"/>
+                            <StackPanel
+    Grid.Column="2"
+    Orientation="Horizontal"
+    Spacing="4"
+    VerticalAlignment="Center">
+
+                                <Button Style="{StaticResource NavIconButtonStyle}">
+                                    <Image Source="/Assets/Icons/bookmark.svg" Width="14" Height="14"/>
+                                </Button>
+
+                                <Button Style="{StaticResource NavIconButtonStyle}">
+                                    <Image Source="/Assets/Icons/chain.svg" Width="14" Height="14"/>
+                                </Button>
+
+                                <Button Style="{StaticResource NavIconButtonStyle}">
+                                    <Image Source="/Assets/Icons/equalizer.svg" Width="14" Height="14"/>
+                                    
+                                </Button>
+
+                                
+
+                            </StackPanel>
+
 
                         </Grid>
 
@@ -305,16 +330,85 @@
 
                     <!-- Right side controls -->
                     <StackPanel
-                        Grid.Column="2"
-                        Orientation="Horizontal"
-                        Spacing="4">
+    Grid.Column="2"
+    Orientation="Horizontal"
+    Spacing="8"
+    VerticalAlignment="Center">
+
+                        <!-- Download button -->
+                        <Button
+        Background="Transparent"
+        BorderThickness="0"
+        Padding="4"
+        FontFamily="Inter"
+                            Click="ToggleDownloadButton_Click">
+
+                            <Image
+            Source="/Assets/Icons/download.svg"
+            Width="14"
+            Height="14"/>
+                        </Button>
+
+
 
                         <!-- Assistant button -->
                         <Button
-                            Content="Assistant"
-                            Width="100"
-                            FontFamily="Inter"
-                            Click="AssistantButton_Click"/>
+        Background="Transparent"
+        BorderThickness="0"
+        Padding="6,2"
+        FontFamily="Inter"
+        Click="AssistantButton_Click">
+
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+
+                                <Image
+                Source="/Assets/Icons/icons8-ai.svg"
+                Width="14"
+                Height="14"/>
+
+                                <TextBlock
+                Text="Assistant"
+                Foreground="#20808d"
+                VerticalAlignment="Center"/>
+
+                            </StackPanel>
+
+                        </Button>
+
+
+
+                        <!-- Separator -->
+                        <Border
+        Width="1"
+        Height="18"
+        Background="#D6D3CE"
+        VerticalAlignment="Center"/>
+
+
+
+                        <!-- User Profile -->
+                        <Button
+        Background="Transparent"
+        BorderThickness="0"
+        Padding="6,2"
+        FontFamily="Inter">
+
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+
+                                <Image
+                Source="/Assets/Icons/profile.svg"
+                Width="14"
+                Height="14"/>
+
+                                <TextBlock
+                Text="User Name"
+                Foreground="#20808d"
+                VerticalAlignment="Center"/>
+
+                            </StackPanel>
+
+                        </Button>
+
 
                         <!-- Menu button -->
                         <Button Content="⋮" Width="30">

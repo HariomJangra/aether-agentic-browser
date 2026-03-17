@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "MainWindow.xaml.h"
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
@@ -97,4 +97,11 @@ namespace winrt::Agentic_Browser::implementation
         browserView.NavigateTo(initialUrl);
 
     }
+    void MainWindow::HoverCardPopup_Opened(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        winrt::Windows::Foundation::IInspectable const& e)
+    {
+        // Your logic here, e.g., load the preview image
+    }
+
 }
