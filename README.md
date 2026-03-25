@@ -2,7 +2,7 @@
 
 Aether is a next-generation, minimalist web browser designed with an "agentic" AI-first philosophy. Built on a native Windows UI foundation with dynamic React-based interfaces, Aether prioritizes speed, intelligent search, and a clean, distraction-free user experience.
 
-*Note: This project is currently in active production.*
+*Note: This project is currently in active development.*
 
 ## System Architecture
 
