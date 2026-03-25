@@ -272,7 +272,7 @@
                                 FontFamily="Funnel Sans"
                                 Click="AssistantButton_Click">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <Image Source="/Assets/Icons/icons8-ai.svg" Width="14" Height="14"/>
+                                <!-- <Image Source="/Assets/Icons/icons8-ai.svg" Width="14" Height="14"/> -->
                                 <TextBlock Text="Assistant"
                                            Foreground="#20808d"
                                            VerticalAlignment="Center"/>
