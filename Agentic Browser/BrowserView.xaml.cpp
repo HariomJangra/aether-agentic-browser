@@ -15,6 +15,7 @@
 #include <winrt/Microsoft.UI.Input.h>
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
 
+
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::Web::WebView2::Core;
@@ -615,6 +616,7 @@ namespace winrt::Agentic_Browser::implementation
             WebView().Close();
         }
         catch (...) {}
+
     }
 
     void BrowserView::AssistantButton_Click(IInspectable const& sender, RoutedEventArgs const& e)
@@ -640,6 +642,7 @@ namespace winrt::Agentic_Browser::implementation
     }
 
     bool m_isDragging = false;
+
 
     void BrowserView::OnSplitterPointerPressed(
         winrt::Windows::Foundation::IInspectable const& sender,

@@ -370,13 +370,10 @@
                     <Grid x:Name="AssistantPanel"
                           Grid.Column="2"
                           Background="#F8F6F2">
-                        <Border BorderBrush="#D6D3CE"
-                                BorderThickness="1,0,0,0">
-                            <WebView2 x:Name="AssistantWebView"
-                                      Source="http://localhost:5050/"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Stretch"/>
-                        </Border>
+                        <WebView2 x:Name="AssistantWebView"
+                                  Source="http://localhost:5050/"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch"/>
                     </Grid>
 
                 </Grid>
