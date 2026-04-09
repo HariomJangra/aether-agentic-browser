@@ -352,8 +352,8 @@ namespace winrt::Agentic_Browser::implementation
             auto uriStr = uri.AbsoluteUri();
 
             // --- NEW: Tell MainWindow the URL updated ---
-            //m_urlChangedEvent(*this, uriStr);
-            // --------------------------------------------
+            m_urlChangedEvent(*this, uriStr);
+            
 
             // Check if this is the special home page URL
             if (uriStr == HOME_PAGE_URL)
@@ -815,6 +815,7 @@ namespace winrt::Agentic_Browser::implementation
 
         // Build a BitmapImage from the stream
         Microsoft::UI::Xaml::Media::Imaging::BitmapImage img;
+        img.DecodePixelWidth(780);
         co_await img.SetSourceAsync(stream);
 
         co_return img;

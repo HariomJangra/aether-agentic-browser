@@ -64,18 +64,18 @@ namespace winrt::Agentic_Browser::implementation
 
         // --- Event Registrations ---
 
-        // --- NEW: Added for Hover Cards ---
-        //winrt::event_token UrlChanged(
-        //    Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring> const& handler)
-        //{
-        //    return m_urlChangedEvent.add(handler);
-        //}
+        
+        winrt::event_token UrlChanged(
+            Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring> const& handler)
+        {
+            return m_urlChangedEvent.add(handler);
+        }
 
-        //void UrlChanged(winrt::event_token const& token) noexcept
-        //{
-        //    m_urlChangedEvent.remove(token);
-        //}
-        // ----------------------------------
+        void UrlChanged(winrt::event_token const& token) noexcept
+        {
+            m_urlChangedEvent.remove(token);
+        }
+         
 
         winrt::event_token TitleChanged(
             Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring> const& handler)
@@ -138,7 +138,7 @@ namespace winrt::Agentic_Browser::implementation
             winrt::Microsoft::UI::Xaml::Input::PointerRoutedEventArgs const& e);
 
         // --- Event Backing Fields ---
-        //winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_urlChangedEvent; // NEW
+        winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_urlChangedEvent;
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_titleChangedEvent;
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_faviconChangedEvent;
         winrt::event<Windows::Foundation::TypedEventHandler<Agentic_Browser::BrowserView, winrt::hstring>> m_newTabRequestedEvent;

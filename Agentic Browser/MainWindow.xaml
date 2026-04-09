@@ -40,6 +40,11 @@
                                 <!-- Tab container -->
                                 <Grid Margin="2,2,2,0" Background="Transparent" MinHeight="34">
 
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip IsEnabled="False"/>
+                                    </ToolTipService.ToolTip>
+                                    
+
                                     <!-- Hover popup preview -->
                                     <Popup x:Name="HoverCardPopup" VerticalOffset="42" Opened="HoverCardPopup_Opened">
 

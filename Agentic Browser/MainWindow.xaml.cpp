@@ -86,6 +86,24 @@ namespace winrt::Agentic_Browser::implementation
                 tab.IconSource(bitmapIcon);
             });
 
+        browserView.UrlChanged([tab](auto const&, winrt::hstring const& url)
+            {
+                try
+                {
+                    winrt::Windows::Foundation::Uri uri(url);
+                    std::wstring host{ uri.Host() };
+                    // Strip www. prefix
+                    if (host.starts_with(L"www."))
+                        host.erase(0, 4);
+                    tab.Tag(winrt::box_value(winrt::hstring{ host }));
+                }
+                catch (...)
+                {
+                    tab.Tag(winrt::box_value(url)); // fallback: show full url
+                }
+            });
+
+
         // Handle Ctrl+Click / target=_blank
         browserView.NewTabRequested(
             [this](auto const&, winrt::hstring const& url)
