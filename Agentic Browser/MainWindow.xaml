@@ -9,7 +9,10 @@
     mc:Ignorable="d"
     Title="Agentic Browser">
 
+    <!-- Root layout -->
     <Grid Background="#d3e3fd">
+
+        <!-- Tab system -->
         <TabView x:Name="Tabs"
          FontFamily="Raleway"
          Background="#f4f2ef"
@@ -17,49 +20,66 @@
          AddTabButtonClick="TabView_AddTabButtonClick"
          TabCloseRequested="TabView_TabCloseRequested"
          CanReorderTabs="True"
-         CanDragTabs="True">
+         CanDragTabs="True"
+         SelectionChanged="Tabs_SelectionChanged">
 
+            <!-- Styling for tabs -->
             <TabView.Resources>
+
+                <!-- Remove default background and border -->
                 <SolidColorBrush x:Key="TabViewTrackBackground" Color="Transparent"/>
                 <SolidColorBrush x:Key="TabViewBorderBrush" Color="Transparent" />
                 <Thickness x:Key="TabViewHeaderPadding">0,2,0,0</Thickness>
 
+                <!-- Custom tab item -->
                 <Style TargetType="TabViewItem">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabViewItem">
+
+                                <!-- Tab container -->
                                 <Grid Margin="2,2,2,0" Background="Transparent" MinHeight="34">
 
+                                    <!-- Hover popup preview -->
                                     <Popup x:Name="HoverCardPopup" VerticalOffset="42" Opened="HoverCardPopup_Opened">
+
+                                        <!-- Animation -->
                                         <Popup.ChildTransitions>
                                             <TransitionCollection>
                                                 <EntranceThemeTransition FromVerticalOffset="-8" />
                                             </TransitionCollection>
                                         </Popup.ChildTransitions>
 
+                                        <!-- Popup content -->
                                         <Grid Width="260" Background="#fffefb" BorderBrush="#D2D2D2" BorderThickness="1" CornerRadius="8" Padding="12">
+
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="Auto" />
                                                 <RowDefinition Height="Auto" />
                                             </Grid.RowDefinitions>
 
+                                            <!-- Tab title -->
                                             <TextBlock Grid.Row="0" Text="{TemplateBinding Header}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis" Foreground="Black"/>
 
+                                            <!-- Tab subtitle/url -->
                                             <TextBlock Grid.Row="1" Text="{TemplateBinding Tag}" FontSize="12" Foreground="#555555" Margin="0,2,0,10" TextTrimming="CharacterEllipsis" />
 
+                                            <!-- Preview image -->
                                             <Border x:Name="PreviewBorder" Grid.Row="2" Height="120" Background="#f4f2ef" CornerRadius="4" BorderBrush="#D2D2D2" BorderThickness="1">
                                                 <Image Stretch="UniformToFill" />
                                             </Border>
                                         </Grid>
                                     </Popup>
 
+                                    <!-- Tab pill UI -->
                                     <Border x:Name="PillBorder" 
                                             Background="Transparent"
                                             CornerRadius="8" 
                                             BorderThickness="1"
                                             BorderBrush="Transparent">
 
+                                        <!-- Layout inside tab -->
                                         <Grid Padding="10,0,4,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
@@ -67,12 +87,14 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
 
+                                            <!-- Tab icon -->
                                             <IconSourceElement x:Name="IconControl"
                                                                IconSource="{TemplateBinding IconSource}"
                                                                VerticalAlignment="Center" 
                                                                Margin="0,0,8,0"
                                                                Width="16" Height="16"/>
 
+                                            <!-- Tab title -->
                                             <ContentPresenter x:Name="HeaderPresenter"
                                                               Grid.Column="1"
                                                               Content="{TemplateBinding Header}"
@@ -81,6 +103,7 @@
                                                               HorizontalAlignment="Stretch"
                                                               FontSize="12" />
 
+                                            <!-- Close button -->
                                             <Button x:Name="CloseButton"
                                                     Grid.Column="2"
                                                     Margin="4,0,0,0"
@@ -90,14 +113,18 @@
                                                     BorderThickness="0"
                                                     VerticalAlignment="Center"
                                                     CornerRadius="4">
+
+                                                <!-- Close icon -->
                                                 <FontIcon Glyph="&#xE711;" FontFamily="Segoe Fluent Icons" FontSize="10" />
                                             </Button>
                                         </Grid>
                                     </Border>
 
+                                    <!-- Tab states -->
                                     <VisualStateManager.VisualStateGroups>
                                         <VisualStateGroup x:Name="CommonStates">
 
+                                            <!-- Default state -->
                                             <VisualState x:Name="Normal">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="Transparent" />
@@ -106,6 +133,7 @@
                                                 </VisualState.Setters>
                                             </VisualState>
 
+                                            <!-- Hover state -->
                                             <VisualState x:Name="PointerOver">
                                                 <Storyboard>
                                                     <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverCardPopup" Storyboard.TargetProperty="IsOpen">
@@ -118,54 +146,29 @@
                                                 </Storyboard>
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#E0E8F5" />
-                                                    <Setter Target="PillBorder.BorderBrush" Value="Transparent" />
                                                     <Setter Target="PreviewBorder.Visibility" Value="Visible" />
                                                 </VisualState.Setters>
                                             </VisualState>
 
+                                            <!-- Click state -->
                                             <VisualState x:Name="Pressed">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#D0D8E5" />
-                                                    <Setter Target="PillBorder.BorderBrush" Value="Transparent" />
                                                     <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
 
+                                            <!-- Selected tab -->
                                             <VisualState x:Name="Selected">
                                                 <VisualState.Setters>
                                                     <Setter Target="PillBorder.Background" Value="#fffefb" />
                                                     <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
-                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-
-                                            <VisualState x:Name="PointerOverSelected">
-                                                <Storyboard>
-                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="HoverCardPopup" Storyboard.TargetProperty="IsOpen">
-                                                        <DiscreteObjectKeyFrame KeyTime="0:0:0.4">
-                                                            <DiscreteObjectKeyFrame.Value>
-                                                                <x:Boolean>True</x:Boolean>
-                                                            </DiscreteObjectKeyFrame.Value>
-                                                        </DiscreteObjectKeyFrame>
-                                                    </ObjectAnimationUsingKeyFrames>
-                                                </Storyboard>
-                                                <VisualState.Setters>
-                                                    <Setter Target="PillBorder.Background" Value="#fffefb" />
-                                                    <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
-                                                    <Setter Target="PreviewBorder.Visibility" Value="Collapsed" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-
-                                            <VisualState x:Name="PressedSelected">
-                                                <VisualState.Setters>
-                                                    <Setter Target="PillBorder.Background" Value="#fffefb" />
-                                                    <Setter Target="PillBorder.BorderBrush" Value="#D2D2D2" />
-                                                    <Setter Target="HoverCardPopup.IsOpen" Value="False" />
                                                 </VisualState.Setters>
                                             </VisualState>
 
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
+
                                 </Grid>
                             </ControlTemplate>
                         </Setter.Value>
@@ -173,9 +176,11 @@
                 </Style>
             </TabView.Resources>
 
+            <!-- Empty space for dragging window -->
             <TabView.TabStripFooter>
                 <Grid x:Name="DragRegion" Background="Transparent" MinWidth="180"/>
             </TabView.TabStripFooter>
+
         </TabView>
     </Grid>
 </Window>

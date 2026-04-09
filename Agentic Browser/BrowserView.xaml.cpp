@@ -794,4 +794,29 @@ namespace winrt::Agentic_Browser::implementation
     {
         // To be Implemented
     }
+
+    winrt::Windows::Foundation::IAsyncOperation<Microsoft::UI::Xaml::Media::Imaging::BitmapImage>
+        BrowserView::CapturePreviewAsync()
+    {
+        auto core = WebView().CoreWebView2();
+        if (!core) co_return nullptr;
+
+        // Create an in-memory stream to receive the PNG bytes
+        Windows::Storage::Streams::InMemoryRandomAccessStream stream;
+
+        // Capture the WebView content into the stream
+        co_await core.CapturePreviewAsync(
+            Microsoft::Web::WebView2::Core::CoreWebView2CapturePreviewImageFormat::Png,
+            stream
+        );
+
+        // Rewind stream to the beginning before reading
+        stream.Seek(0);
+
+        // Build a BitmapImage from the stream
+        Microsoft::UI::Xaml::Media::Imaging::BitmapImage img;
+        co_await img.SetSourceAsync(stream);
+
+        co_return img;
+    }
 }

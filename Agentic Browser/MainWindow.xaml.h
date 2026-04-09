@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MainWindow.g.h"
-// #include <map>  //NEW: Added to store our captured screenshots
+#include <map> 
 
 namespace winrt::Agentic_Browser::implementation
 {
@@ -19,22 +19,19 @@ namespace winrt::Agentic_Browser::implementation
             Microsoft::UI::Xaml::Controls::TabView const& sender,
             Microsoft::UI::Xaml::Controls::TabViewTabCloseRequestedEventArgs const& args);
 
-        // --- NEW: Hover Card Event Handlers ---
-        //winrt::fire_and_forget Tabs_SelectionChanged(
-        //    winrt::Windows::Foundation::IInspectable const& sender,
-        //    Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& e);
+        winrt::fire_and_forget Tabs_SelectionChanged( 
+            winrt::Windows::Foundation::IInspectable const& sender,
+            Microsoft::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
 
-        void HoverCardPopup_Opened( //Make winrt::fire_and_forget when using
+
+        void HoverCardPopup_Opened(
             winrt::Windows::Foundation::IInspectable const& sender,
             winrt::Windows::Foundation::IInspectable const& e);
 
-    //private:
-        //// --- NEW: Hover Card Variables & Helpers ---
-        //std::map<Microsoft::UI::Xaml::Controls::TabViewItem, Microsoft::UI::Xaml::Media::Imaging::BitmapImage> m_tabPreviews;
-        //Microsoft::UI::Xaml::Controls::TabViewItem m_activeTab{ nullptr };
+    private:
+        std::map<Microsoft::UI::Xaml::Controls::TabViewItem,Microsoft::UI::Xaml::Media::Imaging::BitmapImage> m_tabPreviews;
 
-        //winrt::Windows::Foundation::IAsyncOperation<Microsoft::UI::Xaml::Media::Imaging::BitmapImage> CaptureWebViewAsync(
-        //    Microsoft::UI::Xaml::Controls::WebView2 webView);
+        Microsoft::UI::Xaml::Controls::TabViewItem m_activeTab{ nullptr };
     };
 }
 

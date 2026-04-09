@@ -4,6 +4,9 @@
 #include "MainWindow.g.cpp"
 #endif
 #include "BrowserView.xaml.h"
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Microsoft.UI.Xaml.Media.Imaging.h>
+#include <winrt/Microsoft.Web.WebView2.Core.h>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -97,11 +100,69 @@ namespace winrt::Agentic_Browser::implementation
         browserView.NavigateTo(initialUrl);
 
     }
+
+    winrt::fire_and_forget MainWindow::Tabs_SelectionChanged(
+        winrt::Windows::Foundation::IInspectable const& sender,
+        Controls::SelectionChangedEventArgs const& args)
+    {
+        if (args.AddedItems().Size() > 0)
+        {
+            m_activeTab = args.AddedItems()
+                .GetAt(0)
+                .try_as<Controls::TabViewItem>();
+        }
+
+        if (args.RemovedItems().Size() == 0) co_return;
+
+        auto tab = args.RemovedItems()
+            .GetAt(0)
+            .try_as<Controls::TabViewItem>();
+        if (!tab) co_return;
+
+        auto browserView = tab.Content()
+            .try_as<Agentic_Browser::BrowserView>();
+        if (!browserView) co_return;
+
+        auto img = co_await browserView.CapturePreviewAsync();
+        if (!img) co_return;
+
+        m_tabPreviews[tab] = img;
+    }
+
     void MainWindow::HoverCardPopup_Opened(
         winrt::Windows::Foundation::IInspectable const& sender,
-        winrt::Windows::Foundation::IInspectable const& e)
+        winrt::Windows::Foundation::IInspectable const&)
     {
-        // Your logic here, e.g., load the preview image
+        auto popup = sender.try_as<Controls::Primitives::Popup>();
+        if (!popup) return;
+
+        Controls::TabViewItem hoveredTab{ nullptr };
+        winrt::Microsoft::UI::Xaml::DependencyObject current = popup;
+        while (current)
+        {
+            if (auto tab = current.try_as<Controls::TabViewItem>())
+            {
+                hoveredTab = tab;
+                break;
+            }
+            current = Media::VisualTreeHelper::GetParent(current);
+        }
+        if (!hoveredTab) return;
+
+        auto rootGrid = popup.Child().try_as<Controls::Grid>();
+        if (!rootGrid) return;
+
+        auto previewBorder = rootGrid.Children().GetAt(2).try_as<Controls::Border>();
+        if (!previewBorder) return;
+
+        auto img = previewBorder.Child().try_as<Controls::Image>();
+        if (!img) return;
+
+        auto it = m_tabPreviews.find(hoveredTab);
+        if (it != m_tabPreviews.end())
+            img.Source(it->second);
+        else
+            img.Source(nullptr);
     }
 
 }

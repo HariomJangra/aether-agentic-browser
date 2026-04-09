@@ -10,6 +10,7 @@ namespace winrt::Agentic_Browser::implementation
 
         void NavigateTo(winrt::hstring const& url);
         void Cleanup(); // WebView close fxn before Tab removes
+        winrt::Windows::Foundation::IAsyncOperation<Microsoft::UI::Xaml::Media::Imaging::BitmapImage> CapturePreviewAsync();
 
         // Reload animation
         void StartReloadAnimation();
