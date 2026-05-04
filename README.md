@@ -2,95 +2,95 @@
 
 ![Aether Preview](https://i.postimg.cc/25KJCPGV/Aether-Preview.png)
 
-Aether is a minimalist, AI-first browser built for speed, clarity, and intelligent navigation. It combines a native Windows shell with dynamic React frontends to deliver a clean, distraction-free experience that feels fast and focused.
+Aether is a minimalist, AI-first browser designed for speed, clarity, and intelligent navigation. A native Windows shell pairs with modular React frontends to deliver a focused, distraction-free browsing experience.
 
-*Status: active development.*
+**Status:** Active Development
 
-## Why Aether
+## Overview
 
-- **Native performance** with a C++ WinUI 3 shell for low overhead and OS-level integration.
-- **Agentic UX** designed to surface intelligent actions during browsing, not as an afterthought.
-- **Calm visual language** featuring a refined grid, typography, and subtle depth.
-- **Modular frontends** that ship as independent React apps for rapid iteration.
-
-## What Is Inside
-
-The repository splits the native browser shell from the AI frontends it hosts.
-
-- **Agentic Browser (Native Shell)**
-  C++ WinUI 3/XAML application that owns the main window and performance-critical rendering.
-- **Agentic AI Frontends (Git submodules)**
-  - `aether-navigator`: Core navigation UI and browsing assistance.
-  - `aether-search`: Start page, widgets, and multi-engine search shortcuts.
-- **Backend**
-  Extension management and core services that expand the browser's capabilities.
+Aether combines a high-performance C++ native shell with modern React frontends to create an intelligent browsing platform. The architecture cleanly separates the native browser core from AI-powered UI modules, enabling rapid iteration and seamless integration.
 
 ## Key Features
 
-- **Minimalist UI** with a strong focus on clarity and flow.
-- **Intelligent start page** with widgets (weather, clock, quotes) and quick actions.
-- **Multi-engine search** with fast switching, including AI-driven platforms.
-- **Native Windows performance** via C++ WinUI 3 for a responsive feel.
-- **Agentic foundation** designed for AI-assisted browsing workflows.
+- **Native Performance** — High-speed C++ WinUI 3 shell with OS-level integration and minimal overhead
+- **Intelligent Navigation** — Agentic UI that assists with browsing workflows and smart actions
+- **Modular Architecture** — Independent React frontends for navigation and home page
+- **Clean Visual Design** — Refined typography, grid system, and intuitive layout
+- **Search Capabilities** — Multi-engine search with quick switching and AI-driven options
+- **Extensible** — Backend architecture for expanding functionality through extensions
 
 ## Repository Structure
 
-```text
+```
 Aether-Agentic-Browser/
-├── Agentic Browser/      # Native C++ WinUI 3/UWP core shell
+├── Agentic Browser/          # Native C++ WinUI 3 shell (core application)
 ├── Agentic AI/
-│   ├── aether-navigator/ # React+Vite frontend submodule for navigation
-│   └── aether-search/    # React+Vite frontend submodule for the start page
-├── Backend/              # Core extension and backend services
-├── WorkSpace/            # Utilities (e.g., CRX Extractor) and graphics
-└── README.md
+│   ├── aether-navigator/     # Navigation UI frontend (React + Vite)
+│   │   ├── backend/          # Navigation backend services
+│   │   └── frontend/         # React application
+│   └── aether-home/          # Home page frontend (React + Vite)
+│       ├── backend/          # Home page backend services
+│       └── frontend/         # React application
+├── Backend/                  # Extensions and core services
+└── WorkSpace/                # Utilities and assets
 ```
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
+- **Windows 10/11** with latest updates
+- **Visual Studio 2022** with these workloads:
+  - Desktop development with C++
+  - Universal Windows Platform development
+- **Node.js 18+** and npm
+- **Git**
 
-- Windows 10/11 with the latest SDKs
-- Visual Studio 2022 with the "Desktop development with C++" and "Universal Windows Platform development" workloads
-- Node.js and npm (for building the React frontends)
-- Git
+## Installation & Build
 
 ### Clone the Repository
 
-This repo uses submodules for frontend apps. Clone recursively:
-
 ```bash
-git clone --recursive https://github.com/HariomJangra/Aether-Agentic-Browser.git
+git clone https://github.com/HariomJangra/Aether-Agentic-Browser.git
+cd Aether-Agentic-Browser
 ```
 
-If you already cloned without `--recursive`:
+### Build React Frontends
 
 ```bash
-git submodule update --init --recursive
-```
-
-### Build the Frontends
-
-```bash
-# aether-search
-cd "Agentic AI/aether-search/frontend"
+# Build aether-home frontend
+cd "Agentic AI/aether-home/frontend"
 npm install
 npm run build
 
-# aether-navigator
-cd "../../aether-navigator/frontend"
+# Build aether-navigator frontend
+cd "../../../Agentic AI/aether-navigator/frontend"
 npm install
 npm run build
 ```
 
-### Build the Native Shell
+### Build Native Shell
 
-Open `Agentic Browser.slnx` or `.vcxproj` in Visual Studio 2022, select your target architecture (e.g., x64), restore dependencies, and build the solution.
+1. Open `Agentic Browser/Agentic Browser.slnx` in Visual Studio 2022
+2. Select your target architecture (x64 recommended)
+3. Restore NuGet packages
+4. Build the solution (Ctrl + Shift + B)
+
+The compiled application will be available in the build output directory.
+
+## Project Structure
+
+- **Agentic Browser** — Win32/UWP application shell, window management, and native rendering
+- **aether-navigator** — Core browsing interface, tab management, and navigation assistance
+- **aether-home** — Start page, widgets, and quick actions
+- **Backend** — Extension system, API services, and data management
+- **Extensions** — Third-party extensibility and plugins
 
 ## Contributing
 
-Contributions, feature requests, and issues are welcome. Please keep PRs aligned with the minimalist design philosophy and the performance goals of the native shell.
+Contributions are welcome. Please ensure:
+- Code follows the project's minimalist design philosophy
+- Performance impact is minimal, especially for the native shell
+- Pull requests include clear descriptions of changes
 
 ## License
 
-This project is open source. See the license files in the respective directories for details.
+This project is licensed under the terms specified in [LICENSE.txt](LICENSE.txt).
