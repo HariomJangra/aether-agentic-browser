@@ -14,7 +14,7 @@ The Aether repository is structured to separate the native execution shell from 
 - **Agentic AI Frontends**
   Built as Git submodules, these React and Vite applications power the intelligent features of the browser:
   - `aether-navigator`: The core interface for navigation and browsing assistance.
-  - `aether-search`: The customizable start page, featuring intelligent widgets (clock, weather, quotes), an interactive minimalist UI, and multi-engine search capabilities (including Perplexity).
+  - `aether-search`: The customizable start page UI with widgets and multi-engine search shortcuts. Backend search is expected to be provided externally.
 
 - **Backend**
   Handles extension management and core services to extend the browser's capabilities.

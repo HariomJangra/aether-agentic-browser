@@ -2,37 +2,65 @@ import { useState, useEffect, useRef, useCallback, memo } from 'react'
 import './App.css'
 
 // ── Engine config ──────────────────────────────────────────────────────────────
-const searchEngineUrls: Record<string, string> = {
-  aether: './aether.html?q=',
-  google: 'https://www.google.com/search?q=',
-  bing: 'https://www.bing.com/search?q=',
-  duckduckgo: 'https://duckduckgo.com/?q=',
-  yahoo: 'https://search.yahoo.com/search?p=',
-  brave: 'https://search.brave.com/search?q=',
-  perplexity: 'https://www.perplexity.ai/search?q=',
+type SearchEngine = {
+  id: string
+  name: string
+  url?: string
+  icon: string
+  disabled?: boolean
+  note?: string
 }
 
-const aetherLogo = '/aether-logo.png'
+const searchEngines: SearchEngine[] = [
+  {
+    id: 'google',
+    name: 'Google',
+    url: 'https://www.google.com/search?q=',
+    icon: 'https://img.icons8.com/?size=100&id=17949&format=png&color=000000',
+  },
+  {
+    id: 'bing',
+    name: 'Bing',
+    url: 'https://www.bing.com/search?q=',
+    icon: 'https://img.icons8.com/?size=100&id=pOADWgX6vV63&format=png&color=000000',
+  },
+  {
+    id: 'duckduckgo',
+    name: 'DuckDuckGo',
+    url: 'https://duckduckgo.com/?q=',
+    icon: 'https://img.icons8.com/?size=100&id=63778&format=png&color=000000',
+  },
+  {
+    id: 'yahoo',
+    name: 'Yahoo',
+    url: 'https://search.yahoo.com/search?p=',
+    icon: 'https://img.icons8.com/?size=100&id=G3F1h1aX2vpT&format=png&color=000000',
+  },
+  {
+    id: 'brave',
+    name: 'Brave',
+    url: 'https://search.brave.com/search?q=',
+    icon: 'https://img.icons8.com/?size=100&id=ZAPJV5FAO4PW&format=png&color=000000',
+  },
+  {
+    id: 'perplexity',
+    name: 'Perplexity',
+    url: 'https://www.perplexity.ai/search?q=',
+    icon: 'https://www.google.com/s2/favicons?domain=perplexity.ai&sz=128',
+  },
+  {
+    id: 'lucidity',
+    name: 'Lucidity',
+    icon: 'https://img.icons8.com/?size=100&id=11223&format=png&color=000000',
+    disabled: true,
+    note: 'Coming soon',
+  },
+]
 
-const engineIcons: Record<string, string> = {
-  aether: aetherLogo,
-  google: 'https://img.icons8.com/?size=100&id=17949&format=png&color=000000',
-  bing: 'https://img.icons8.com/?size=100&id=pOADWgX6vV63&format=png&color=000000',
-  duckduckgo: 'https://img.icons8.com/?size=100&id=63778&format=png&color=000000',
-  yahoo: 'https://img.icons8.com/?size=100&id=G3F1h1aX2vpT&format=png&color=000000',
-  brave: 'https://img.icons8.com/?size=100&id=ZAPJV5FAO4PW&format=png&color=000000',
-  perplexity: 'https://www.google.com/s2/favicons?domain=perplexity.ai&sz=128',
-}
-
-const engineNames: Record<string, string> = {
-  aether: 'Aether',
-  google: 'Google',
-  bing: 'Bing',
-  duckduckgo: 'DuckDuckGo',
-  yahoo: 'Yahoo',
-  brave: 'Brave',
-  perplexity: 'Perplexity',
-}
+const engineById: Record<string, SearchEngine> = Object.fromEntries(
+  searchEngines.map(engine => [engine.id, engine])
+)
+const defaultEngineId = 'google'
 
 // ── Services ───────────────────────────────────────────────────────────────────
 interface Service {
@@ -48,7 +76,18 @@ const defaultServices: Service[] = [
   { url: 'https://github.com', name: 'Github', icon: null },
 ]
 
-const quickWidgets = [
+type QuickWidget = {
+  id: string
+  title: string
+  subtitle: string
+  variant: string
+  stat?: string
+  tag?: string
+  action?: string
+  href?: string
+}
+
+const quickWidgets: QuickWidget[] = [
   {
     id: 'clock',
     title: 'Time',
@@ -71,11 +110,11 @@ const quickWidgets = [
     variant: 'note',
   },
   {
-    id: 'assistant',
-    title: 'Try assistant',
-    subtitle: 'Guided search flow',
-    action: 'Open',
-    href: './aether.html?q=Try%20assistant',
+    id: 'lucidity',
+    title: 'Lucidity',
+    subtitle: 'Coming soon',
+    action: 'Preview',
+    tag: 'Coming soon',
     variant: 'aurora',
   },
 ]
@@ -298,7 +337,13 @@ function App() {
   const dateText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   const [searchQuery, setSearchQuery] = useState('')
   const [currentEngine, setCurrentEngineState] = useState<string>(() => {
-    try { return localStorage.getItem('selectedSearchEngine') || 'aether' } catch { return 'aether' }
+    try {
+      const saved = localStorage.getItem('selectedSearchEngine')
+      const resolved = saved && engineById[saved] && !engineById[saved].disabled ? saved : defaultEngineId
+      return resolved
+    } catch {
+      return defaultEngineId
+    }
   })
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -348,10 +393,11 @@ function App() {
     return () => document.removeEventListener('click', handleClick)
   }, [])
 
-  const setCurrentEngine = useCallback((engine: string, persist = true) => {
-    if (!searchEngineUrls[engine]) return
-    setCurrentEngineState(engine)
-    if (persist) { try { localStorage.setItem('selectedSearchEngine', engine) } catch { } }
+  const setCurrentEngine = useCallback((engineId: string, persist = true) => {
+    const engine = engineById[engineId]
+    if (!engine || engine.disabled || !engine.url) return
+    setCurrentEngineState(engineId)
+    if (persist) { try { localStorage.setItem('selectedSearchEngine', engineId) } catch { } }
   }, [])
 
   const handleSearch = useCallback((overrideQuery?: string) => {
@@ -359,8 +405,9 @@ function App() {
     if (!query) return
     setSearchQuery('')
     setIsSuggestionsOpen(false)
-    const url = searchEngineUrls[currentEngine] || searchEngineUrls.aether
-    window.location.href = url + encodeURIComponent(query)
+    const engine = engineById[currentEngine] || engineById[defaultEngineId]
+    const url = engine?.url || engineById[defaultEngineId].url
+    if (url) window.location.href = url + encodeURIComponent(query)
   }, [searchQuery, currentEngine])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -470,6 +517,8 @@ function App() {
     closeEditMarketModal()
   }
 
+  const activeEngine = engineById[currentEngine] || engineById[defaultEngineId]
+
   return (
     <div className="container">
       {/* Search Container */}
@@ -496,24 +545,33 @@ function App() {
               onClick={e => { e.stopPropagation(); setIsDropdownOpen(o => !o) }}
             >
               <svg className="engine-icon-btn" viewBox="0 0 24 24" fill="currentColor">
-                <image href={engineIcons[currentEngine]} x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid meet" />
+                <image href={activeEngine.icon} x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid meet" />
               </svg>
-              <span className="engine-name">{engineNames[currentEngine]}</span>
+              <span className="engine-name">{activeEngine.name}</span>
               <svg className="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
             <div className="dropdown-menu">
-              {Object.keys(engineIcons).map(engine => (
-                <div
-                  key={engine}
-                  className="dropdown-item"
-                  onClick={e => { e.stopPropagation(); setCurrentEngine(engine); setIsDropdownOpen(false) }}
-                >
-                  <img className="engine-icon" src={engineIcons[engine]} alt={engineNames[engine]} />
-                  <span>{engineNames[engine]}</span>
-                </div>
-              ))}
+              {searchEngines.map(engine => {
+                const isDisabled = Boolean(engine.disabled || !engine.url)
+                return (
+                  <div
+                    key={engine.id}
+                    className={`dropdown-item${isDisabled ? ' disabled' : ''}`}
+                    onClick={e => {
+                      if (isDisabled) return
+                      e.stopPropagation()
+                      setCurrentEngine(engine.id)
+                      setIsDropdownOpen(false)
+                    }}
+                  >
+                    <img className="engine-icon" src={engine.icon} alt={engine.name} />
+                    <span>{engine.name}</span>
+                    {engine.note && <span className="engine-note">{engine.note}</span>}
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -583,25 +641,13 @@ function App() {
         {quickWidgets.map(widget => {
           const isLink = Boolean(widget.href)
           const isNotes = widget.id === 'notes'
-          const Tag = isLink ? 'a' : 'div'
-          const linkProps = isLink
-            ? {
-                href: widget.href,
-                target: widget.href?.startsWith('http') ? '_blank' : undefined,
-                rel: widget.href?.startsWith('http') ? 'noreferrer' : undefined,
-              }
-            : {}
+          const isExternal = widget.href?.startsWith('http')
 
           const stat = widget.id === 'clock' ? timeText : widget.stat
           const subtitle = widget.id === 'clock' ? dateText : widget.subtitle
 
-          return (
-            <Tag
-              key={widget.id}
-              className={`widget-card${isLink ? ' widget-link' : ''}`}
-              data-variant={widget.variant}
-              {...linkProps}
-            >
+          const widgetBody = (
+            <>
               {isNotes ? (
                 <div className="note-widget">
                   <textarea
@@ -643,8 +689,8 @@ function App() {
                 </div>
               ) : (
                 <>
-                  {widget.id === 'assistant' && (
-                    <img className="widget-cover-image" src="/Assistant-Widget.png" alt="Assistant Widget" />
+                  {widget.id === 'lucidity' && (
+                    <img className="widget-cover-image" src="/Assistant-Widget.png" alt="Lucidity" />
                   )}
                   <div className="widget-top">
                     <div>
@@ -659,7 +705,32 @@ function App() {
                   </div>
                 </>
               )}
-            </Tag>
+            </>
+          )
+
+          if (isLink && widget.href) {
+            return (
+              <a
+                key={widget.id}
+                className="widget-card widget-link"
+                data-variant={widget.variant}
+                href={widget.href}
+                target={isExternal ? '_blank' : undefined}
+                rel={isExternal ? 'noreferrer' : undefined}
+              >
+                {widgetBody}
+              </a>
+            )
+          }
+
+          return (
+            <div
+              key={widget.id}
+              className="widget-card"
+              data-variant={widget.variant}
+            >
+              {widgetBody}
+            </div>
           )
         })}
       </section>
