@@ -1,31 +1,37 @@
 # Aether Agentic Browser
 
-Aether is a next-generation, minimalist web browser designed with an "agentic" AI-first philosophy. Built on a native Windows UI foundation with dynamic React-based interfaces, Aether prioritizes speed, intelligent search, and a clean, distraction-free user experience.
+![Aether Preview](https://i.postimg.cc/25KJCPGV/Aether-Preview.png)
 
-*Note: This project is currently in active development.*
+Aether is a minimalist, AI-first browser built for speed, clarity, and intelligent navigation. It combines a native Windows shell with dynamic React frontends to deliver a clean, distraction-free experience that feels fast and focused.
 
-## System Architecture
+*Status: active development.*
 
-The Aether repository is structured to separate the native execution shell from the dynamic web-based tools and interfaces it powers.
+## Why Aether
+
+- **Native performance** with a C++ WinUI 3 shell for low overhead and OS-level integration.
+- **Agentic UX** designed to surface intelligent actions during browsing, not as an afterthought.
+- **Calm visual language** featuring a refined grid, typography, and subtle depth.
+- **Modular frontends** that ship as independent React apps for rapid iteration.
+
+## What Is Inside
+
+The repository splits the native browser shell from the AI frontends it hosts.
 
 - **Agentic Browser (Native Shell)**
-  A high-performance C++ WinUI 3 / XAML application that serves as the core browser window. It provides deep OS integration, seamless performance, and native rendering capabilities.
-
-- **Agentic AI Frontends**
-  Built as Git submodules, these React and Vite applications power the intelligent features of the browser:
-  - `aether-navigator`: The core interface for navigation and browsing assistance.
-  - `aether-search`: The customizable start page UI with widgets and multi-engine search shortcuts. Backend search is expected to be provided externally.
-
+  C++ WinUI 3/XAML application that owns the main window and performance-critical rendering.
+- **Agentic AI Frontends (Git submodules)**
+  - `aether-navigator`: Core navigation UI and browsing assistance.
+  - `aether-search`: Start page, widgets, and multi-engine search shortcuts.
 - **Backend**
-  Handles extension management and core services to extend the browser's capabilities.
+  Extension management and core services that expand the browser's capabilities.
 
 ## Key Features
 
-- **Minimalist User Interface**: A distraction-free environment featuring a dynamic dot grid, clean typography, and a refined color palette.
-- **Intelligent Start Page**: Includes built-in widgets (weather, clock, quotes), greeting messages, and a unified bottom navigation bar.
-- **Multiple Search Engines**: Seamlessly switch between standard search engines and AI-driven platforms like Perplexity.
-- **Native Windows Performance**: Powered by a C++ WinUI 3 backend, ensuring minimal overhead and native system integration.
-- **Agentic AI Integration**: Designed from the ground up to support AI assistance directly within the browsing workflow.
+- **Minimalist UI** with a strong focus on clarity and flow.
+- **Intelligent start page** with widgets (weather, clock, quotes) and quick actions.
+- **Multi-engine search** with fast switching, including AI-driven platforms.
+- **Native Windows performance** via C++ WinUI 3 for a responsive feel.
+- **Agentic foundation** designed for AI-assisted browsing workflows.
 
 ## Repository Structure
 
@@ -49,46 +55,42 @@ Aether-Agentic-Browser/
 - Node.js and npm (for building the React frontends)
 - Git
 
-### Cloning the Repository
+### Clone the Repository
 
-Because this repository uses submodules for the frontend applications, ensure you clone it recursively:
+This repo uses submodules for frontend apps. Clone recursively:
 
 ```bash
 git clone --recursive https://github.com/HariomJangra/Aether-Agentic-Browser.git
 ```
 
-If you have already cloned the repository without the `--recursive` flag, initialize and update the submodules with:
+If you already cloned without `--recursive`:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-### Building the Project
-
-#### 1. Build the Frontends
-
-Navigate to the frontend directories and install the necessary dependencies:
+### Build the Frontends
 
 ```bash
-# For aether-search
+# aether-search
 cd "Agentic AI/aether-search/frontend"
 npm install
 npm run build
 
-# For aether-navigator
+# aether-navigator
 cd "../../aether-navigator/frontend"
 npm install
 npm run build
 ```
 
-#### 2. Build the Native Shell
+### Build the Native Shell
 
-Open the `Agentic Browser.slnx` or `.vcxproj` in Visual Studio 2022. Select your target architecture (e.g., x64), ensure all dependencies are restored, and build the solution.
+Open `Agentic Browser.slnx` or `.vcxproj` in Visual Studio 2022, select your target architecture (e.g., x64), restore dependencies, and build the solution.
 
 ## Contributing
 
-As this project is in active development, contributions, feature requests, and issue reports are welcome. Please ensure that PRs align with the minimalist design philosophy and maintain the performance standards of the native shell.
+Contributions, feature requests, and issues are welcome. Please keep PRs aligned with the minimalist design philosophy and the performance goals of the native shell.
 
 ## License
 
-This project is open-source. Please see the complete license information in the respective directories for more information.
+This project is open source. See the license files in the respective directories for details.
