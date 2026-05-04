@@ -2,7 +2,9 @@
 
 #include "MainWindow.g.h"
 #include <map> 
+#include <memory>
 #include <winrt/Windows.Networking.Sockets.h>
+#include "ServerProcessManager.h"
 
 namespace winrt::Agentic_Browser::implementation
 {
@@ -36,6 +38,9 @@ namespace winrt::Agentic_Browser::implementation
 
         Microsoft::UI::Xaml::Controls::TabViewItem m_activeTab{ nullptr };
         winrt::Windows::Networking::Sockets::StreamSocketListener m_agentListener{ nullptr };
+        
+        std::unique_ptr<ServerProcessManager> m_navigatorServer;
+        std::unique_ptr<ServerProcessManager> m_searchServer;
     };
 }
 

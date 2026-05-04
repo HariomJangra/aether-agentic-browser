@@ -1,6 +1,0 @@
-[submodule "Agentic AI/aether-navigator"]
-	path = Agentic AI/aether-navigator
-	url = https://github.com/HariomJangra/aether-navigator.git
-[submodule "Agentic AI/aether-search"]
-	path = Agentic AI/aether-search
-	url = https://github.com/HariomJangra/aether-search.git

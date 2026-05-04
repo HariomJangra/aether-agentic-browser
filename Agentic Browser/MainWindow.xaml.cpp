@@ -26,6 +26,20 @@ namespace winrt::Agentic_Browser::implementation
         
         // Start TCP listener
         InitializeAgentListener();
+        
+        // Auto-Start Local Background AI Servers 
+        m_navigatorServer = std::make_unique<ServerProcessManager>();
+        m_searchServer = std::make_unique<ServerProcessManager>();
+
+        std::wstring pythonCmd = L"python server.py";
+        std::wstring pythonCmd2 = L"python main.py";
+        
+        // Paths to the FastAPI backends
+        //std::wstring navigatorDir = L"F:\\Browser Development\\Agentic AI\\aether-navigator\\backend";
+        std::wstring searchDir = L"F:\\Browser Development\\Agentic AI\\aether-search\\backend";
+
+        //m_navigatorServer->StartServer(pythonCmd2, navigatorDir);
+        m_searchServer->StartServer(pythonCmd, searchDir);
     }
 
     //  New Tab button

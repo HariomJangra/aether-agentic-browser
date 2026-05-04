@@ -279,21 +279,21 @@
                             </StackPanel>
                         </Button>
 
-                        <Border Width="1" Height="18"
+                        <!--Border Width="1" Height="18"
                                 Background="#D6D3CE"
-                                VerticalAlignment="Center"/>
+                                VerticalAlignment="Center"/-->
 
-                        <Button Style="{StaticResource NavIconButtonStyle}"
+                        <!--Button Style="{StaticResource NavIconButtonStyle}"
                                 Width="Auto"
                                 Padding="6,2"
                                 FontFamily="Funnel Sans">
                             <StackPanel Orientation="Horizontal" Spacing="5">
-                                <!--<Image Source="/Assets/Icons/profile.svg" Width="14" Height="14"/>-->
+                                <Image Source="/Assets/Icons/profile.svg" Width="14" Height="14"/>
                                 <TextBlock Text="Profile"
                                            Foreground="Black"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
-                        </Button>
+                        </Button-->
 
                         <Border Width="1" Height="18"
                                 Background="#D6D3CE"
@@ -310,11 +310,11 @@
                                         </MenuFlyoutItem.KeyboardAccelerators>
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator/>
-                                    <MenuFlyoutItem Text="Hariom Jangra (Signed in)">
+                                    <!--MenuFlyoutItem Text="Hariom Jangra (Signed in)">
                                         <MenuFlyoutItem.Icon>
                                             <FontIcon Glyph=""/>
                                         </MenuFlyoutItem.Icon>
-                                    </MenuFlyoutItem>
+                                    </MenuFlyoutItem-->
                                     <MenuFlyoutSeparator/>
                                     <MenuFlyoutItem Text="Bookmarks" Icon="OutlineStar" Click="BookmarkPage_Click"/>
                                     <MenuFlyoutItem Text="Extensions" Icon="OutlineStar" Click="ExtensionsPage_Click"/>
@@ -326,10 +326,10 @@
                                         </MenuFlyoutItem.Icon>
                                     </MenuFlyoutItem>
                                     <MenuFlyoutSeparator/>
-                                    <MenuFlyoutSubItem Text="More tools" Icon="Repair">
+                                    <!--<MenuFlyoutSubItem Text="More tools" Icon="Repair">
                                         <MenuFlyoutItem Text="Task Manager"/>
                                         <MenuFlyoutItem Text="Developer Tools"/>
-                                    </MenuFlyoutSubItem>
+                                    </MenuFlyoutSubItem>-->
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
