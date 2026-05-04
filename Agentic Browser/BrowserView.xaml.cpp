@@ -14,6 +14,7 @@
 #include <winrt/Microsoft.UI.Xaml.Media.Animation.h>
 #include <winrt/Microsoft.UI.Input.h>
 #include <winrt/Windows.ApplicationModel.DataTransfer.h>
+#include <winrt/Windows.Data.Json.h>
 
 #include <winrt/Microsoft.UI.Xaml.Hosting.h>
 #include <winrt/Microsoft.UI.Composition.h>
@@ -157,6 +158,33 @@ namespace winrt::Agentic_Browser::implementation
                                     }
                                 });
                         }
+
+                        core.WebMessageReceived([weak_this = self->get_weak()](auto&&, auto&& args)
+                            {
+                                if (auto self = weak_this.get())
+                                {
+                                    try
+                                    {
+                                        auto message = Windows::Data::Json::JsonObject::Parse(args.WebMessageAsJson());
+                                        auto type = message.GetNamedString(L"type", L"");
+                                        if (type != L"open_assistant_and_run")
+                                        {
+                                            return;
+                                        }
+
+                                        self->OpenAssistantPanel();
+
+                                        auto prompt = message.GetNamedString(L"prompt", L"");
+                                        if (prompt.empty())
+                                        {
+                                            return;
+                                        }
+
+                                        self->SendPromptToAssistant(prompt);
+                                    }
+                                    catch (...) {}
+                                }
+                            });
                     }
 
                     // Navigate to pending URL if exists, otherwise home page
@@ -220,6 +248,18 @@ namespace winrt::Agentic_Browser::implementation
 
                         OutputDebugString(L"✓ Navigating to localhost:5050\n");
                         core.Navigate(L"http://localhost:5050/");
+                        core.NavigationCompleted([weak_this = self->get_weak()](auto&&, auto&&)
+                            {
+                                if (auto self = weak_this.get())
+                                {
+                                    if (!self->m_pendingAssistantPrompt.empty())
+                                    {
+                                        auto prompt = self->m_pendingAssistantPrompt;
+                                        self->m_pendingAssistantPrompt.clear();
+                                        self->SendPromptToAssistant(prompt);
+                                    }
+                                }
+                            });
                     }
                 }
             });
@@ -634,16 +674,7 @@ namespace winrt::Agentic_Browser::implementation
     {
         if (AssistantColumn().Width().Value == 0)
         {
-            // Show assistant panel
-            AssistantColumn().Width(GridLengthHelper::FromValueAndType(350, GridUnitType::Pixel));
-            GridSplitterBorder().Visibility(Visibility::Visible);
-
-            // Add splitter interaction handlers
-            GridSplitterBorder().PointerPressed({ this, &BrowserView::OnSplitterPointerPressed });
-            GridSplitterBorder().PointerMoved({ this, &BrowserView::OnSplitterPointerMoved });
-            GridSplitterBorder().PointerReleased({ this, &BrowserView::OnSplitterPointerReleased });
-            GridSplitterBorder().PointerCaptureLost({ this, &BrowserView::OnSplitterPointerReleased });     
-
+            OpenAssistantPanel();
         }
         else
         {
@@ -652,6 +683,36 @@ namespace winrt::Agentic_Browser::implementation
             GridSplitterBorder().Visibility(Visibility::Collapsed);   
 
         }
+    }
+
+    void BrowserView::OpenAssistantPanel()
+    {
+        AssistantColumn().Width(GridLengthHelper::FromValueAndType(350, GridUnitType::Pixel));
+        GridSplitterBorder().Visibility(Visibility::Visible);
+
+        GridSplitterBorder().PointerPressed({ this, &BrowserView::OnSplitterPointerPressed });
+        GridSplitterBorder().PointerMoved({ this, &BrowserView::OnSplitterPointerMoved });
+        GridSplitterBorder().PointerReleased({ this, &BrowserView::OnSplitterPointerReleased });
+        GridSplitterBorder().PointerCaptureLost({ this, &BrowserView::OnSplitterPointerReleased });
+    }
+
+    void BrowserView::SendPromptToAssistant(winrt::hstring const& prompt)
+    {
+        if (prompt.empty())
+        {
+            return;
+        }
+
+        if (auto assistantCore = AssistantWebView().CoreWebView2())
+        {
+            Windows::Data::Json::JsonObject payload;
+            payload.Insert(L"type", Windows::Data::Json::JsonValue::CreateStringValue(L"run_prompt"));
+            payload.Insert(L"prompt", Windows::Data::Json::JsonValue::CreateStringValue(prompt));
+            assistantCore.PostWebMessageAsJson(payload.Stringify());
+            return;
+        }
+
+        m_pendingAssistantPrompt = prompt;
     }
 
     bool m_isDragging = false;

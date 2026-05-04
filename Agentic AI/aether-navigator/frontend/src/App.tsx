@@ -117,6 +117,22 @@ export default function App() {
     }
   }, [streaming, messages.length]);
 
+  useEffect(() => {
+    const webview = (window as any).chrome?.webview;
+    if (!webview?.addEventListener) return;
+
+    const onMessage = (event: any) => {
+      const data = event?.data;
+      if (!data || data.type !== 'run_prompt' || typeof data.prompt !== 'string') return;
+      handleSend(data.prompt);
+    };
+
+    webview.addEventListener('message', onMessage);
+    return () => {
+      webview.removeEventListener?.('message', onMessage);
+    };
+  }, [handleSend]);
+
   const handleStop = useCallback(async () => {
     stopTask().catch(() => { });
     abortRef.current?.abort();

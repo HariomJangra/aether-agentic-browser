@@ -136,8 +136,11 @@ namespace winrt::Agentic_Browser::implementation
         void UpdateUrlBarFromWebView();
         void HookCoreWebViewEvents();
         void UpdateNavigationButtonStates();
+        void OpenAssistantPanel();
+        void SendPromptToAssistant(winrt::hstring const& prompt);
 
         winrt::hstring m_pendingNavigationUrl;
+        winrt::hstring m_pendingAssistantPrompt;
 
         // Short-delay timer for URL bar hover (prevents flicker on fast mouse pass-through)
         Microsoft::UI::Xaml::DispatcherTimer m_urlBarHoverTimer{ nullptr };

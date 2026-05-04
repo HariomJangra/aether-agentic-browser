@@ -59,6 +59,8 @@ def stream_chat(user_input: str, session_id: str):
 
     stop_event.clear()
     memory.add("user", user_input)
+    # Only stream messages added after this request starts.
+    base_index = len(memory.get())
     send_winui_signal("START")
 
     ai_reply = ""
@@ -81,6 +83,8 @@ def stream_chat(user_input: str, session_id: str):
             updates = [step] if isinstance(step, dict) else []
             for update in updates:
                 for i, msg in enumerate(update.get("messages", [])):
+                    if i < base_index:
+                        continue
                     key = _msg_key(msg, i)
                     if key in seen_messages:
                         continue

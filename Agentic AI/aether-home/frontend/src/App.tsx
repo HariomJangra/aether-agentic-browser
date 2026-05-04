@@ -110,13 +110,17 @@ const quickWidgets: QuickWidget[] = [
     variant: 'note',
   },
   {
-    id: 'lucidity',
-    title: 'Lucidity',
-    subtitle: 'Coming soon',
-    action: 'Preview',
-    tag: 'Coming soon',
+    id: 'try_assistant',
+    title: 'Try assistant',
+    subtitle: 'Start assistant now',
+    action: 'Run',
     variant: 'aurora',
   },
+]
+
+const assistantStarterPrompts = [
+  'Open maps and mark the path between New Delhi and Mumbai.',
+  'Open youtube and search for virtual insight',
 ]
 
 function getFaviconUrl(url: string): string {
@@ -368,6 +372,16 @@ function App() {
   })
   const [editMarketModalOpen, setEditMarketModalOpen] = useState(false)
   const [editMarketSymbol, setEditMarketSymbol] = useState('')
+  const handleTryAssistant = useCallback(() => {
+    const prompt = assistantStarterPrompts[Math.floor(Math.random() * assistantStarterPrompts.length)]
+    const webview = (window as any).chrome?.webview
+    if (webview?.postMessage) {
+      webview.postMessage({
+        type: 'open_assistant_and_run',
+        prompt,
+      })
+    }
+  }, [])
 
   const searchInputRef = useRef<HTMLTextAreaElement>(null)
   const searchBoxRef = useRef<HTMLDivElement>(null)
@@ -689,8 +703,8 @@ function App() {
                 </div>
               ) : (
                 <>
-                  {widget.id === 'lucidity' && (
-                    <img className="widget-cover-image" src="/Assistant-Widget.png" alt="Lucidity" />
+                  {widget.id === 'try_assistant' && (
+                    <img className="widget-cover-image" src="/Assistant-Widget.png" alt="Try assistant" />
                   )}
                   <div className="widget-top">
                     <div>
@@ -728,6 +742,7 @@ function App() {
               key={widget.id}
               className="widget-card"
               data-variant={widget.variant}
+              onClick={widget.id === 'try_assistant' ? handleTryAssistant : undefined}
             >
               {widgetBody}
             </div>
