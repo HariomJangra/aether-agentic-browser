@@ -32,7 +32,6 @@ Aether-Agentic-Browser/
 │       ├── backend/          # Home page backend services
 │       └── frontend/         # React application
 ├── Backend/                  # Extensions and core services
-└── WorkSpace/                # Utilities and assets
 ```
 
 ## Prerequisites

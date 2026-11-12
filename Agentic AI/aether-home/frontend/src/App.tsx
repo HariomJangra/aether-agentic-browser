@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react'
+import { useState, useEffect, useRef, useCallback, memo, type ChangeEvent } from 'react'
 import './App.css'
 
 // ── Engine config ──────────────────────────────────────────────────────────────
@@ -51,16 +51,15 @@ const searchEngines: SearchEngine[] = [
   {
     id: 'lucidity',
     name: 'Lucidity',
-    icon: 'https://img.icons8.com/?size=100&id=11223&format=png&color=000000',
-    disabled: true,
-    note: 'Coming soon',
+    url: 'https://lucidityai.vercel.app/search?q=',
+    icon: '/LucidityLogo.png',
   },
 ]
 
 const engineById: Record<string, SearchEngine> = Object.fromEntries(
   searchEngines.map(engine => [engine.id, engine])
 )
-const defaultEngineId = 'google'
+const defaultEngineId = 'lucidity'
 
 // ── Services ───────────────────────────────────────────────────────────────────
 interface Service {
@@ -117,6 +116,48 @@ const quickWidgets: QuickWidget[] = [
     variant: 'aurora',
   },
 ]
+
+type ClockSlot = 'main' | 'sub1' | 'sub2'
+
+const clockTimezones: Record<string, string> = {
+  'Asia/Kolkata': 'New Delhi',
+  'America/Los_Angeles': 'Los Angeles',
+  'Europe/London': 'London',
+  'America/New_York': 'New York',
+  'Europe/Moscow': 'Moscow',
+  'Asia/Tokyo': 'Tokyo',
+  'Australia/Sydney': 'Sydney',
+  'Asia/Dubai': 'Dubai',
+  'Europe/Paris': 'Paris',
+  'America/Sao_Paulo': 'Sao Paulo',
+}
+
+function formatClockTime(timeZone: string, date: Date): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date)
+}
+
+function formatClockOffset(timeZone: string, date: Date): string {
+  const offsetFormatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    timeZoneName: 'shortOffset',
+  })
+  const parts = offsetFormatter.formatToParts(date)
+  const tzPart = parts.find(part => part.type === 'timeZoneName')
+  let offsetString = tzPart ? tzPart.value : 'GMT'
+
+  if (offsetString === 'GMT') {
+    offsetString = 'GMT +0'
+  } else {
+    offsetString = offsetString.replace('GMT+', 'GMT +').replace('GMT-', 'GMT -')
+  }
+
+  return offsetString
+}
 
 const assistantStarterPrompts = [
   'Open maps and mark the path between New Delhi and Mumbai.',
@@ -336,7 +377,6 @@ function App() {
 
   const h = now.getHours() % 12 || 12
   const m = now.getMinutes().toString().padStart(2, '0')
-  const ampm = now.getHours() >= 12 ? 'PM' : 'AM'
   const timeText = `${h}:${m}`
   const dateText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
   const [searchQuery, setSearchQuery] = useState('')
@@ -370,6 +410,12 @@ function App() {
   const [marketSymbol, setMarketSymbol] = useState(() => {
     try { return localStorage.getItem('marketSymbol') || 'NASDAQ:NVDA' } catch { return 'NASDAQ:NVDA' }
   })
+  const [clockZones, setClockZones] = useState(() => ({
+    main: 'Asia/Kolkata',
+    sub1: 'America/Los_Angeles',
+    sub2: 'Europe/London',
+  }))
+  const [isClockSettingsOpen, setIsClockSettingsOpen] = useState(false)
   const [editMarketModalOpen, setEditMarketModalOpen] = useState(false)
   const [editMarketSymbol, setEditMarketSymbol] = useState('')
   const handleTryAssistant = useCallback(() => {
@@ -383,11 +429,29 @@ function App() {
     }
   }, [])
 
+  const handleClockZoneChange = (slot: ClockSlot) => (event: ChangeEvent<HTMLSelectElement>) => {
+    const nextZone = event.target.value
+    setClockZones(prev => ({ ...prev, [slot]: nextZone }))
+  }
+
+  const openClockSettings = () => setIsClockSettingsOpen(true)
+  const closeClockSettings = () => setIsClockSettingsOpen(false)
+
   const searchInputRef = useRef<HTMLTextAreaElement>(null)
   const searchBoxRef = useRef<HTMLDivElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const suggestionsRef = useRef<HTMLDivElement>(null)
   const suggestionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const mainTime = formatClockTime(clockZones.main, now)
+  const sub1Time = formatClockTime(clockZones.sub1, now)
+  const sub2Time = formatClockTime(clockZones.sub2, now)
+  const mainOffset = formatClockOffset(clockZones.main, now)
+  const sub1Offset = formatClockOffset(clockZones.sub1, now)
+  const sub2Offset = formatClockOffset(clockZones.sub2, now)
+  const mainCity = clockTimezones[clockZones.main] || clockZones.main
+  const sub1City = clockTimezones[clockZones.sub1] || clockZones.sub1
+  const sub2City = clockTimezones[clockZones.sub2] || clockZones.sub2
 
   // Close menus when clicking outside
   useEffect(() => {
@@ -673,19 +737,37 @@ function App() {
                   />
                 </div>
               ) : widget.id === 'clock' ? (
-                <div className="custom-clock-widget">
-                  <div className="clock-top">
-                    <div className="clock-date-text">{subtitle}</div>
-                    <div className="clock-icon">
-                      {now.getHours() >= 6 && now.getHours() < 18 ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                      ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                      )}
+                <div className="time-widget">
+                  <button
+                    className="edit-btn"
+                    type="button"
+                    onClick={e => { e.stopPropagation(); openClockSettings() }}
+                    aria-label="Edit clock"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                  <div className="time-widget-map-overlay" aria-hidden="true" />
+                  <div className="time-widget-content">
+                    <div className="time-widget-main">
+                      <div className="time-widget-main-time">{mainTime}</div>
+                      <div className="time-widget-main-city">{mainCity}</div>
+                      <div className="time-widget-offset">{mainOffset}</div>
                     </div>
-                  </div>
-                  <div className="clock-time-huge">
-                    {stat}<span className="clock-ampm">{ampm}</span>
+                    <div className="time-widget-secondary">
+                      <div className="time-widget-sub">
+                        <div className="time-widget-sub-city">{sub1City}</div>
+                        <div className="time-widget-sub-time">{sub1Time}</div>
+                        <div className="time-widget-offset">{sub1Offset}</div>
+                      </div>
+                      <div className="time-widget-sub">
+                        <div className="time-widget-sub-city">{sub2City}</div>
+                        <div className="time-widget-sub-time">{sub2Time}</div>
+                        <div className="time-widget-offset">{sub2Offset}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : widget.id === 'market' ? (
@@ -821,14 +903,61 @@ function App() {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="bottom-nav">
-        <button className="bottom-nav-btn">History</button>
-        <span className="bottom-nav-divider">|</span>
-        <button className="bottom-nav-btn">Bookmarks</button>
-        <span className="bottom-nav-divider">|</span>
-        <button className="bottom-nav-btn">Settings</button>
+      {/* Edit Clock Modal */}
+      <div
+        className={`edit-modal${isClockSettingsOpen ? ' active' : ''}`}
+        onClick={e => { if (e.target === e.currentTarget) closeClockSettings() }}
+      >
+        <div className="modal-content">
+          <div className="modal-header">
+            <h3>Edit Timezones</h3>
+            <button className="close-btn" onClick={closeClockSettings}>&times;</button>
+          </div>
+          <div className="modal-body">
+            <div className="form-group">
+              <label htmlFor="clock-main-select">Main Clock</label>
+              <select
+                id="clock-main-select"
+                value={clockZones.main}
+                onChange={handleClockZoneChange('main')}
+              >
+                {Object.entries(clockTimezones).map(([tz, name]) => (
+                  <option key={tz} value={tz}>{name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="clock-sub1-select">Bottom Left Clock</label>
+              <select
+                id="clock-sub1-select"
+                value={clockZones.sub1}
+                onChange={handleClockZoneChange('sub1')}
+              >
+                {Object.entries(clockTimezones).map(([tz, name]) => (
+                  <option key={tz} value={tz}>{name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="clock-sub2-select">Bottom Right Clock</label>
+              <select
+                id="clock-sub2-select"
+                value={clockZones.sub2}
+                onChange={handleClockZoneChange('sub2')}
+              >
+                {Object.entries(clockTimezones).map(([tz, name]) => (
+                  <option key={tz} value={tz}>{name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button className="btn-cancel" onClick={closeClockSettings}>Close</button>
+            <button className="btn-save" onClick={closeClockSettings}>Save</button>
+          </div>
+        </div>
       </div>
+
     </div>
   )
 }

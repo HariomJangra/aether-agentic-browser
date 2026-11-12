@@ -7,7 +7,7 @@ from typing import Any
 def get_active_tab(
     host: str = "127.0.0.1",
     port: int = 9222,
-    timeout_s: float = 0.75,
+    timeout_s: float = 3,
 ) -> dict[str, Any]:
     """Return the current active tab (top CDP page entry).
 

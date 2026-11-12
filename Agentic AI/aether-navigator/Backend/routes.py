@@ -114,10 +114,6 @@ def stream_chat(user_input: str, session_id: str):
     finally:
         send_winui_signal("STOP")
 
-    if not ai_reply:
-        ai_reply = "I completed tool actions but did not produce a final text response. Please retry."
-        yield sse_event({"type": "ai_message", "content": ai_reply})
-
     memory.add("ai", ai_reply)
     yield sse_event({"type": "done"})
 

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Clock Widget - Light Theme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e5e5ea; /* Slightly darker background to make the white widget pop */
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .widget-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            background-color: #ffffff; /* Clean white background */
+            border-radius: 45px;
+            padding: 35px 30px;
+            box-sizing: border-box;
+            color: #1c1c1e; /* Dark text for contrast */
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); /* Softer, lighter shadow */
+        }
+
+        /* The map overlay is updated with a very faint grey stroke (%23f2f2f7) */
+        .map-overlay {
+            position: absolute;
+            top: -20px;
+            right: -30px;
+            width: 250px;
+            height: 250px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="%23f2f2f7" stroke-width="0.8" stroke-linejoin="round"><path d="M30 0 L40 10 L35 25 L50 30 L60 20 L80 25 L90 10 L100 15 M50 30 L40 45 L55 55 L70 50 L85 60 L100 55 M55 55 L45 70 L60 85 L80 80 L95 95 M45 70 L30 65 L20 80 L0 75"/></svg>');
+            background-size: cover;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Settings Button */
+        .settings-btn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            z-index: 10;
+            background: none;
+            border: none;
+            color: #8e8e93; /* Muted grey */
+            cursor: pointer;
+            font-size: 20px;
+            transition: color 0.2s ease, transform 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            color: #1c1c1e; /* Darkens on hover in light mode */
+            transform: rotate(90deg);
+        }
+
+        /* Clock Typography */
+        .main-clock { display: flex; flex-direction: column; }
+        .main-time {
+            font-family: 'Oswald', sans-serif;
+            font-size: 96px;
+            line-height: 0.9;
+            letter-spacing: -2px;
+            margin-bottom: 12px;
+            margin-left: -4px;
+            color: #000000; /* Pure black for the main numbers to stand out */
+        }
+        .main-city { font-size: 24px; font-weight: 500; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .gmt-offset { font-size: 15px; color: #8e8e93; } /* Grey offset text */
+
+        .secondary-clocks { display: flex; justify-content: space-between; width: 90%; }
+        .sub-clock { display: flex; flex-direction: column; }
+        .sub-city { font-size: 19px; margin-bottom: 6px; font-weight: 500;}
+        .sub-time { font-size: 20px; font-weight: 400; margin-bottom: 3px; }
+        .sub-clock .gmt-offset { font-size: 14px; }
+
+        /* Settings Overlay - Light Mode */
+        .settings-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95); /* Frosted white glass */
+            backdrop-filter: blur(5px);
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-sizing: border-box;
+            transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 45px;
+        }
+
+        .settings-panel.open {
+            top: 0;
+        }
+
+        .settings-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .settings-group label {
+            display: block;
+            font-size: 12px;
+            color: #8e8e93;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .settings-group select {
+            width: 100%;
+            background-color: #f2f2f7; /* Very light grey input background */
+            color: #1c1c1e;
+            border: 1px solid #e5e5ea;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .settings-group select:focus {
+            border-color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-container">
+        <button class="settings-btn" id="toggle-settings" aria-label="Settings">⚙️</button>
+        <div class="map-overlay"></div>
+        
+        <!-- Main Clock Content -->
+        <div class="content" id="clock-content">
+            <div class="main-clock">
+                <div class="main-time" id="main-time">--:--</div>
+                <div class="main-city" id="main-city-name">London</div>
+                <div class="gmt-offset" id="main-offset">GMT --</div>
+            </div>
+
+            <div class="secondary-clocks">
+                <div class="sub-clock">
+                    <div class="sub-city" id="sub1-city-name">New York</div>
+                    <div class="sub-time" id="sub1-time">--:--</div>
+                    <div class="gmt-offset" id="sub1-offset">GMT --</div>
+                </div>
+                <div class="sub-clock">
+                    <div class="sub-city" id="sub2-city-name">Moscow</div>
+                    <div class="sub-time" id="sub2-time">--:--</div>
+                    <div class="gmt-offset" id="sub2-offset">GMT --</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Overlay -->
+        <div class="settings-panel" id="settings-panel">
+            <div class="settings-group">
+                <label>Main Clock</label>
+                <select id="select-main"></select>
+            </div>
+            <div class="settings-group">
+                <label>Bottom Left Clock</label>
+                <select id="select-sub1"></select>
+            </div>
+            <div class="settings-group">
+                <label>Bottom Right Clock</label>
+                <select id="select-sub2"></select>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database of available timezones and their display names
+        const timezones = {
+            'Europe/London': 'London',
+            'America/New_York': 'New York',
+            'Europe/Moscow': 'Moscow',
+            'Asia/Tokyo': 'Tokyo',
+            'Australia/Sydney': 'Sydney',
+            'America/Los_Angeles': 'Los Angeles',
+            'Asia/Dubai': 'Dubai',
+            'Europe/Paris': 'Paris',
+            'Asia/Kolkata': 'New Delhi',
+            'America/Sao_Paulo': 'São Paulo'
+        };
+
+        // State object to track currently selected zones
+        const state = {
+            main: 'Europe/London',
+            sub1: 'America/New_York',
+            sub2: 'Europe/Moscow'
+        };
+
+        // DOM Elements
+        const panel = document.getElementById('settings-panel');
+        const content = document.getElementById('clock-content');
+        const btn = document.getElementById('toggle-settings');
+        let clockInterval;
+
+        // Initialize Select Dropdowns
+        function initSettings() {
+            const selects = ['main', 'sub1', 'sub2'];
+            
+            selects.forEach(slot => {
+                const selectElement = document.getElementById(`select-${slot}`);
+                
+                // Populate options
+                for (const [tz, name] of Object.entries(timezones)) {
+                    const option = document.createElement('option');
+                    option.value = tz;
+                    option.textContent = name;
+                    if (tz === state[slot]) option.selected = true;
+                    selectElement.appendChild(option);
+                }
+
+                // Listen for changes
+                selectElement.addEventListener('change', (e) => {
+                    state[slot] = e.target.value;
+                    document.getElementById(`${slot}-city-name`).textContent = timezones[e.target.value];
+                    updateClocks(); // Immediately update time when changed
+                });
+            });
+
+            // Toggle Panel
+            btn.addEventListener('click', () => {
+                const isOpen = panel.classList.contains('open');
+                if (isOpen) {
+                    panel.classList.remove('open');
+                    content.style.opacity = '1';
+                } else {
+                    panel.classList.add('open');
+                    content.style.opacity = '0.1'; // Dim background more aggressively for light mode
+                }
+            });
+        }
+
+        function updateClocks() {
+            const now = new Date();
+
+            function setCityData(timeZone, slotPrefix) {
+                // 1. Get 24-hour Time
+                const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: timeZone, hour: '2-digit', minute: '2-digit', hour12: false
+                });
+                document.getElementById(`${slotPrefix}-time`).textContent = timeFormatter.format(now);
+
+                // 2. Get GMT Offset
+                const offsetFormatter = new Intl.DateTimeFormat('en-GB', {
+                    timeZone: timeZone, timeZoneName: 'shortOffset'
+                });
+                
+                const parts = offsetFormatter.formatToParts(now);
+                const tzPart = parts.find(part => part.type === 'timeZoneName');
+                let offsetString = tzPart ? tzPart.value : 'GMT';
+                
+                if (offsetString === 'GMT') {
+                    offsetString = 'GMT +0';
+                } else {
+                    offsetString = offsetString.replace('GMT+', 'GMT +').replace('GMT-', 'GMT -');
+                }
+                document.getElementById(`${slotPrefix}-offset`).textContent = offsetString;
+            }
+
+            // Update all three clocks based on current state
+            setCityData(state.main, 'main');
+            setCityData(state.sub1, 'sub1');
+            setCityData(state.sub2, 'sub2');
+        }
+
+        // Setup and start
+        initSettings();
+        updateClocks();
+        clockInterval = setInterval(updateClocks, 1000);
+    </script>
+
+</body>
+</html>

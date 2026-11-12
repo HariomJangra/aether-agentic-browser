@@ -1,7 +1,7 @@
 import subprocess
 import threading
 import json
-from config import AGENT_MODEL
+from config import MODEL, MODEL_PROVIDER, SYSTEM_PROMPT
 from cdp import get_active_tab as cdp_get_active_tab
 
 
@@ -14,8 +14,6 @@ def _run(cmd: str) -> str:
     )
     return result.stdout + (result.stderr if result.returncode != 0 else "")
 
-
-# ── Tools
 
 def ensure_active_tab() -> str:
     cdp = cdp_get_active_tab()
@@ -69,11 +67,18 @@ _agent_ready = threading.Event()
 def _init_agent():
     global _agent
     from langchain.agents import create_agent
+    from langchain.chat_models import init_chat_model
     from langchain.tools import tool
+
+    # Initialize the LLM with Mistral AI
+    general_llm = init_chat_model(
+        model=MODEL,
+        model_provider=MODEL_PROVIDER,
+    )
 
     @tool("snapshot", description="Return interactive accessibility snapshot from agent-browser.")
     def snapshot() -> str:
-        return _run("agent-browser snapshot -i")
+        return _run("agent-browser snapshot")
 
     @tool(
         "navigate",
@@ -121,7 +126,12 @@ def _init_agent():
     def interact(cmd: str) -> str:
         return _run(cmd)
 
-    _agent = create_agent(AGENT_MODEL, tools=[snapshot, navigate, interact])
+    # Create agent with model and tools, using the system prompt
+    _agent = create_agent(
+        model=general_llm,
+        tools=[snapshot, navigate, interact],
+        system_prompt=SYSTEM_PROMPT
+    )
     _agent_ready.set()
 
 

@@ -110,6 +110,7 @@
                                                               ContentTemplate="{TemplateBinding HeaderTemplate}"
                                                               VerticalAlignment="Center"
                                                               HorizontalAlignment="Stretch"
+                                                              FontFamily="Inter"
                                                               FontSize="12" />
 
                                             <!-- Close button -->
@@ -154,7 +155,7 @@
                                                     </ObjectAnimationUsingKeyFrames>
                                                 </Storyboard>
                                                 <VisualState.Setters>
-                                                    <Setter Target="PillBorder.Background" Value="#E0E8F5" />
+                                                    <Setter Target="PillBorder.Background" Value="#e9e9e2" />
                                                     <Setter Target="PreviewBorder.Visibility" Value="Visible" />
                                                 </VisualState.Setters>
                                             </VisualState>
