@@ -1,95 +1,135 @@
-# Aether Agentic Browser
+# Aether Browser — Multilingual Voice-First Agentic Web Browser
+
+> **Gnani AI Hackathon Edition** | Built with **Gnani.ai** (Prisma STT, Evon 3.3 LLM, Timber 2.5 TTS) + **DeepSeek** + **WinUI 3 (C++)**
 
 ![Aether Preview](https://i.postimg.cc/25KJCPGV/Aether-Preview.png)
 
-Aether is a minimalist, AI-first browser designed for speed, clarity, and intelligent navigation. A native Windows shell pairs with modular React frontends to deliver a focused, distraction-free browsing experience.
+Aether is a next-generation, AI-first browser that pairs a high-performance native Windows C++ shell with an autonomous, **voice-first agentic assistant**. Speak in your mother tongue — Hindi, Tamil, Telugu, Kannada, Marathi, Bengali, Gujarati, Punjabi, Malayalam, or English — and Aether executes complex, real-time browser actions autonomously and speaks the results back to you.
 
-**Status:** Active Development
+---
 
-## Overview
+## 🎙️ The Gnani.ai Multilingual Voice Pipeline
 
-Aether combines a high-performance C++ native shell with modern React frontends to create an intelligent browsing platform. The architecture cleanly separates the native browser core from AI-powered UI modules, enabling rapid iteration and seamless integration.
+Aether integrates **Gnani.ai's state-of-the-art Voice & Language models** to deliver a seamless end-to-end voice browsing experience:
 
-## Key Features
+```
+ ┌────────────────┐       ┌─────────────────┐       ┌────────────────────────┐
+ │   User Speaks  │ ───►  │  Gnani Prisma   │ ───►  │     Gnani Evon 3.3     │
+ │ (Any Language) │       │  STT (Auto-LID) │       │ (Browser Task Planner) │
+ └────────────────┘       └─────────────────┘       └────────────────────────┘
+                                                                 │
+                                                                 ▼
+ ┌────────────────┐       ┌─────────────────┐       ┌────────────────────────┐
+ │  Audio Reply   │ ◄───  │ Gnani Timber 2.5│ ◄───  │    DeepSeek + CDP      │
+ │ (User's Voice) │       │ Neural Voice TTS│       │ (Streaming Browser AI) │
+ └────────────────┘       └─────────────────┘       └────────────────────────┘
+```
 
-- **Native Performance** — High-speed C++ WinUI 3 shell with OS-level integration and minimal overhead
-- **Intelligent Navigation** — Agentic UI that assists with browsing workflows and smart actions
-- **Modular Architecture** — Independent React frontends for navigation and home page
-- **Clean Visual Design** — Refined typography, grid system, and intuitive layout
-- **Search Capabilities** — Multi-engine search with quick switching and AI-driven options
-- **Extensible** — Backend architecture for expanding functionality through extensions
+### 1. Speech-to-Text: **Gnani Prisma STT (v3.0)**
+- Captures live user voice with noise suppression and echo cancellation.
+- Features **Automatic Language Identification (`Auto-LID`)** supporting major Indic languages & English (Hindi, Tamil, Telugu, Kannada, Marathi, Bengali, Gujarati, Punjabi, Malayalam, Hinglish).
+- Real-time transcription into text.
 
-## Repository Structure
+### 2. Intent & Task Formulation: **Gnani Evon 3.3 LLM**
+- Understands colloquial, conversational speech and preserves multi-turn conversational context.
+- Converts regional language queries into clean, deterministic browser automation tasks in English for the underlying browser engine.
+
+### 3. Real-Time Autonomous Browser Execution: **DeepSeek + CDP**
+- Automates live browser tabs via Chrome DevTools Protocol (`agent-browser`).
+- Performs interactive actions: taking accessibility snapshots, clicking elements (`@ref`), filling forms, scrolling, switching tabs, and navigating.
+- **True Real-Time SSE Streaming**: Tool execution steps (`tool_call`, `tool_result`, and AI reasoning) stream progressively into the assistant panel as they occur.
+
+### 4. Multilingual Response Translation: **Gnani Evon 3.3 LLM**
+- Translates the agent's concise English completion summary back into the user’s original spoken language.
+
+### 5. Text-to-Speech: **Gnani Timber 2.5 Neural TTS**
+- Synthesizes expressive, high-fidelity neural speech in the user's native language.
+- Automatically streams and plays back the voice in the assistant panel, accompanied by an interactive replay player.
+
+---
+
+## ✨ Key Features
+
+- **🗣️ Voice-Driven Navigation** — Click the *Speak* button and instruct the browser naturally (e.g., *"YouTube pe latest tech news chalao"* or *"Flipkart par wireless earbuds dhoondho"*).
+- **⚡ Native Windows Shell** — High-speed C++ WinUI 3 core with OS-level integration and embedded WebView2 engines.
+- **🌊 Real-Time Action Streaming** — Live visual feedback showing every browser action (snapshot, click, fill, scroll) in real-time.
+- **🎨 Minimalist Aesthetics** — Warm, distraction-free aesthetic with custom home page widgets (`aether-home`).
+- **🛡️ Clean Modular Architecture** — Decoupled voice module (`Backend/gnani/`) that seamlessly hooks into the browser backend without altering core navigation capabilities.
+
+---
+
+## 📁 Repository Structure
 
 ```
 Aether-Agentic-Browser/
-├── Agentic Browser/          # Native C++ WinUI 3 shell (core application)
+├── Agentic Browser/                # Native C++ WinUI 3 shell (core application)
 ├── Agentic AI/
-│   ├── aether-navigator/     # Navigation UI frontend (React + Vite)
-│   │   ├── backend/          # Navigation backend services
-│   │   └── frontend/         # React application
-│   └── aether-home/          # Home page frontend (React + Vite)
-│       ├── backend/          # Home page backend services
-│       └── frontend/         # React application
-├── Backend/                  # Extensions and core services
+│   ├── aether-navigator/           # Browser Assistant (Sidebar panel)
+│   │   ├── Backend/                # FastAPI assistant server (Port 5050)
+│   │   │   ├── gnani/              # Gnani.ai Integration Module
+│   │   │   │   ├── prisma_stt.py   # Gnani Prisma STT client
+│   │   │   │   ├── evon_llm.py     # Gnani Evon 3.3 task formulator & translator
+│   │   │   │   ├── timber_tts.py   # Gnani Timber 2.5 TTS client
+│   │   │   │   └── routes.py       # Voice streaming endpoints (/gnani/voice-chat)
+│   │   │   ├── agent.py            # DeepSeek / LangGraph browser automation agent
+│   │   │   └── routes.py           # Core chat streaming
+│   │   └── frontend/               # React + TypeScript assistant panel UI
+│   │       └── src/components/gnani/ # SpeakButton, useVoiceRecorder, AudioPlayer
+│   └── aether-home/                # Home page frontend & widgets (Port 8000)
+├── Gnani/                          # Gnani AI integration documentation & architecture
 ```
 
-## Prerequisites
+---
 
-- **Windows 10/11** with latest updates
-- **Visual Studio 2022** with these workloads:
-  - Desktop development with C++
-  - Universal Windows Platform development
-- **Node.js 18+** and npm
-- **Git**
+## 🚀 Quickstart & Setup
 
-## Installation & Build
+### Prerequisites
 
-### Clone the Repository
+- **Windows 10 / 11**
+- **Node.js 18+** & npm
+- **Python 3.10+**
+- **Visual Studio 2022** (with C++ Desktop & UWP workloads)
 
-```bash
-git clone https://github.com/HariomJangra/Aether-Agentic-Browser.git
-cd Aether-Agentic-Browser
+### 1. Configure API Keys
+
+In `Agentic AI/aether-navigator/Backend/.env`:
+```dotenv
+GNANI_API_KEY = "your_gnani_api_key_here"
+DEEPSEEK_API_KEY = "your_deepseek_api_key_here"
 ```
 
-### Build React Frontends
+### 2. Build the Frontends
 
 ```bash
-# Build aether-home frontend
+# Build aether-home (New Tab / Home screen)
 cd "Agentic AI/aether-home/frontend"
 npm install
 npm run build
 
-# Build aether-navigator frontend
+# Build aether-navigator (Agent Assistant Panel)
 cd "../../../Agentic AI/aether-navigator/frontend"
 npm install
 npm run build
 ```
 
-### Build Native Shell
+### 3. Launch the Backend Server
 
-1. Open `Agentic Browser/Agentic Browser.slnx` in Visual Studio 2022
-2. Select your target architecture (x64 recommended)
-3. Restore NuGet packages
-4. Build the solution (Ctrl + Shift + B)
+```bash
+cd "Agentic AI/aether-navigator/Backend"
+pip install -r requirements.txt
+python app.py
+```
+*(Server starts on `http://localhost:5050`)*
 
-The compiled application will be available in the build output directory.
+### 4. Run the Native Browser
 
-## Project Structure
+1. Open `Agentic Browser/Agentic Browser.slnx` in Visual Studio 2022.
+2. Select **x64** configuration.
+3. Build and launch (`F5`).
+4. Click the **Assistant** icon on the top-right toolbar or click the **Speak** button in the panel to test multilingual voice automation!
 
-- **Agentic Browser** — Win32/UWP application shell, window management, and native rendering
-- **aether-navigator** — Core browsing interface, tab management, and navigation assistance
-- **aether-home** — Start page, widgets, and quick actions
-- **Backend** — Extension system, API services, and data management
-- **Extensions** — Third-party extensibility and plugins
+---
 
-## Contributing
-
-Contributions are welcome. Please ensure:
-- Code follows the project's minimalist design philosophy
-- Performance impact is minimal, especially for the native shell
-- Pull requests include clear descriptions of changes
-
-## License
+## 📄 License
 
 This project is licensed under the terms specified in [LICENSE.txt](LICENSE.txt).

@@ -8,11 +8,29 @@ export type SSEEvent =
   | { type: 'ai_message'; content: string }
   | { type: 'stopped'; content: string }
   | { type: 'error'; content: string }
+  | { type: 'gnani_status'; step: string; message: string }
+  | { type: 'gnani_stt_result'; transcript: string; language: string }
+  | { type: 'gnani_task_result'; english_task: string; language: string; language_code: string }
+  | { type: 'gnani_native_reply'; text: string; language: string }
+  | { type: 'gnani_audio'; audio_url: string; text: string; language: string }
   | { type: 'done' };
 
 export type ChatMessage =
-  | { role: 'user'; text: string }
-  | { role: 'ai'; text: string; error?: boolean; stopped?: boolean }
+  | {
+      role: 'user';
+      text: string;
+      originalVoiceText?: string;
+      detectedLang?: string;
+    }
+  | {
+      role: 'ai';
+      text: string;
+      error?: boolean;
+      stopped?: boolean;
+      audioUrl?: string;
+      nativeText?: string;
+      nativeLanguage?: string;
+    }
   | { role: 'tool_call'; name: string; args: Record<string, unknown> }
   | { role: 'tool_result'; name: string; preview: string };
 
@@ -35,6 +53,48 @@ export async function streamChat(
   });
 
   if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+
+  const reader = resp.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop()!;
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (!raw) continue;
+      try {
+        onEvent(JSON.parse(raw));
+      } catch { /* skip malformed */ }
+    }
+  }
+}
+
+export async function streamVoiceChat(
+  audioBase64: string,
+  format: string,
+  onEvent: (evt: SSEEvent) => void,
+  signal?: AbortSignal,
+) {
+  const resp = await fetch('/gnani/voice-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      audio_base64: audioBase64,
+      format,
+      session_id: SESSION_ID,
+    }),
+    signal,
+  });
+
+  if (!resp.ok) throw new Error(`Gnani Voice API error ${resp.status}`);
 
   const reader = resp.body!.getReader();
   const decoder = new TextDecoder();

@@ -806,6 +806,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -1012,4 +1013,243 @@
     width: 36px;
     height: 36px;
   }
+}
+
+/* ── Gnani AI Voice Integration ─────────────────────────────────────────── */
+.gnani-voice-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gnani-voice-pill-mic {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Recording Pill State */
+.gnani-voice-pill--recording {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%) !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+  animation: gnaniPulseGlow 1.4s infinite;
+}
+
+@keyframes gnaniPulseGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.gnani-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: inline-block;
+  animation: gnaniBlink 1s infinite alternate;
+}
+
+@keyframes gnaniBlink {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.15); }
+}
+
+.gnani-speak-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.gnani-speak-btn {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gnani-speak-btn:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--tool-bg);
+}
+
+.gnani-mic-icon {
+  width: 17px;
+  height: 17px;
+}
+
+/* Recording State */
+.gnani-speak-btn--recording {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.25);
+  animation: gnaniPulseRing 1.5s infinite;
+}
+
+@keyframes gnaniPulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.gnani-recording-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gnani-pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.gnani-live-tag {
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+/* Spinner */
+.gnani-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: gnaniSpin 0.7s linear infinite;
+}
+
+@keyframes gnaniSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* User Message Speech Info */
+.gnani-voice-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gnani-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(120, 119, 198, 0.15);
+  color: var(--accent, #a78bfa);
+  width: fit-content;
+}
+
+.gnani-spoken-quote {
+  font-size: 12.5px;
+  font-style: italic;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.gnani-task-line {
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+/* Translated Response Callout in AI bubble */
+.gnani-translated-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--tool-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gnani-translated-header {
+  margin-bottom: 6px;
+}
+
+.gnani-translated-body {
+  color: var(--text);
+  font-size: 13.5px;
+}
+
+/* Audio Player */
+.gnani-audio-player {
+  margin-top: 10px;
+}
+
+.gnani-audio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: var(--tool-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.gnani-audio-btn:hover {
+  background: var(--border);
+  transform: translateY(-1px);
+}
+
+.gnani-audio-btn--playing {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: #a78bfa;
+  color: #a78bfa;
+}
+
+.gnani-audio-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }

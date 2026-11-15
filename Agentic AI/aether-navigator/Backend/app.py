@@ -31,6 +31,14 @@ def create_app() -> FastAPI:
     # Register all API routes (prefixed with nothing, so /chat, /stop, etc.)
     app.include_router(router)
 
+    # Register Gnani AI hackathon routes (Prisma STT, Evon 3.3, Timber 2.5 TTS)
+    try:
+        from gnani import gnani_router
+        app.include_router(gnani_router)
+    except Exception as exc:
+        print(f"[Gnani AI] Notice: gnani module not registered: {exc}")
+
+
     # Serve the built React frontend if the dist folder exists
     if FRONTEND_DIST.is_dir():
         app.mount(

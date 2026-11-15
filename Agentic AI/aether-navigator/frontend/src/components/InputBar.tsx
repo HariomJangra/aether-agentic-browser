@@ -1,12 +1,15 @@
 import { useRef, useEffect, useState } from 'react';
+import SpeakButton from './gnani/SpeakButton';
+import type { VoiceRecordingResult } from './gnani/useVoiceRecorder';
 
 interface InputBarProps {
   onSend: (text: string) => void;
+  onVoiceSend?: (audioBase64: string, format: string) => void;
   onStop: () => void;
   streaming: boolean;
 }
 
-export default function InputBar({ onSend, onStop, streaming }: InputBarProps) {
+export default function InputBar({ onSend, onVoiceSend, onStop, streaming }: InputBarProps) {
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [hasText, setHasText] = useState(false);
   const summarizePrompt = 'Summarize the current webpage';
@@ -44,9 +47,20 @@ export default function InputBar({ onSend, onStop, streaming }: InputBarProps) {
     }
   };
 
+  const handleVoiceReady = (result: VoiceRecordingResult) => {
+    if (streaming || !onVoiceSend) return;
+    onVoiceSend(result.base64, result.format);
+  };
+
   return (
     <footer className="input-bar">
       <div className="quick-actions">
+        {onVoiceSend && (
+          <SpeakButton
+            onVoiceReady={handleVoiceReady}
+            disabled={streaming}
+          />
+        )}
         <button
           className="quick-action-btn"
           onClick={handleSummarize}

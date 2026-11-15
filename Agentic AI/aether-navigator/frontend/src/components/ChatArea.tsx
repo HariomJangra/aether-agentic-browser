@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import type { ChatMessage } from '../api';
 import EmptyState from './EmptyState';
 import ToolSteps from './ToolSteps';
+import AudioPlayer from './gnani/AudioPlayer';
 
 interface ChatAreaProps {
   messages: ChatMessage[];
@@ -63,7 +64,17 @@ export default function ChatArea({ messages, isEmpty, isStreaming }: ChatAreaPro
           if (msg.role === 'user') {
             return (
               <div className="msg user" key={i}>
-                <div className="msg-bubble user-bubble">{msg.text}</div>
+                <div className="msg-bubble user-bubble">
+                  {msg.originalVoiceText && (
+                    <div className="gnani-voice-tag">
+                      <span className="gnani-badge">
+                        🎤 {msg.detectedLang || 'Voice'}
+                      </span>
+                      <span className="gnani-spoken-quote">"{msg.originalVoiceText}"</span>
+                    </div>
+                  )}
+                  <div className="gnani-task-line">{msg.text}</div>
+                </div>
               </div>
             );
           }
@@ -78,6 +89,29 @@ export default function ChatArea({ messages, isEmpty, isStreaming }: ChatAreaPro
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {msg.text}
                     </ReactMarkdown>
+
+                    {/* Gnani Evon 3.3 Translated Response */}
+                    {msg.nativeText && msg.nativeText !== msg.text && (
+                      <div className="gnani-translated-box">
+                        <div className="gnani-translated-header">
+                          <span className="gnani-badge">
+                            🗣️ {msg.nativeLanguage || 'Original Language'}
+                          </span>
+                        </div>
+                        <div className="gnani-translated-body">
+                          {msg.nativeText}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gnani Timber 2.5 Audio Player */}
+                    {msg.audioUrl && (
+                      <AudioPlayer
+                        audioUrl={msg.audioUrl}
+                        autoPlay={true}
+                        language={msg.nativeLanguage}
+                      />
+                    )}
                   </div>
                 ) : (
                   <TypingDots />

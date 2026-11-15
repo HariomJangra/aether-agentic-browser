@@ -3,6 +3,57 @@ import threading
 import json
 from config import MODEL, MODEL_PROVIDER, SYSTEM_PROMPT
 from cdp import get_active_tab as cdp_get_active_tab
+from langchain.agents.middleware import AgentMiddleware
+from langchain_core.messages import ToolMessage, AIMessage
+
+
+# ── Middleware
+
+class EphemeralSnapshotMiddleware(AgentMiddleware):
+    """
+    Prunes superseded accessibility snapshots from the context before invoking the model.
+    Only the latest page snapshot is preserved in full; all prior snapshots are replaced
+    with a lightweight placeholder to avoid token bloat and outdated element references.
+    """
+
+    def _prune_older_snapshots(self, messages: list):
+        snapshot_indices = []
+        for i, msg in enumerate(messages):
+            if isinstance(msg, ToolMessage):
+                name = getattr(msg, "name", None)
+                if not name:
+                    for prev in reversed(messages[:i]):
+                        if isinstance(prev, AIMessage) and hasattr(prev, "tool_calls"):
+                            for tc in prev.tool_calls:
+                                if tc.get("id") == msg.tool_call_id:
+                                    name = tc.get("name")
+                                    break
+                            if name:
+                                break
+                if name == "snapshot":
+                    snapshot_indices.append(i)
+
+        if len(snapshot_indices) > 1:
+            edited = list(messages)
+            for idx in snapshot_indices[:-1]:
+                old_msg = edited[idx]
+                edited[idx] = old_msg.model_copy(
+                    update={"content": "[Previous page snapshot omitted: superseded by latest page state]"}
+                )
+            return edited
+        return messages
+
+    def wrap_model_call(self, request, handler):
+        edited_messages = self._prune_older_snapshots(request.messages)
+        if edited_messages is not request.messages:
+            request = request.override(messages=edited_messages)
+        return handler(request)
+
+    async def awrap_model_call(self, request, handler):
+        edited_messages = self._prune_older_snapshots(request.messages)
+        if edited_messages is not request.messages:
+            request = request.override(messages=edited_messages)
+        return await handler(request)
 
 
 # ── Helpers
@@ -126,11 +177,12 @@ def _init_agent():
     def interact(cmd: str) -> str:
         return _run(cmd)
 
-    # Create agent with model and tools, using the system prompt
+    # Create agent with model and tools, using the system prompt and ephemeral snapshot middleware
     _agent = create_agent(
         model=general_llm,
         tools=[snapshot, navigate, interact],
-        system_prompt=SYSTEM_PROMPT
+        system_prompt=SYSTEM_PROMPT,
+        middleware=[EphemeralSnapshotMiddleware()],
     )
     _agent_ready.set()
 

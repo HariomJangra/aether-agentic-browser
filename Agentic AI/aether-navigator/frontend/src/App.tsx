@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChatMessage, SSEEvent } from './api';
-import { streamChat, stopTask, clearMemory, fetchStatus } from './api';
+import { streamChat, streamVoiceChat, stopTask, clearMemory, fetchStatus } from './api';
 import Header from './components/Header';
 import ChatArea from './components/ChatArea';
 import InputBar from './components/InputBar';
@@ -107,7 +107,7 @@ export default function App() {
         const copy = [...prev];
         copy[copy.length - 1] = {
           role: 'ai',
-          text: 'Could not reach the agent server. Make sure server.py is running on port 5050.',
+          text: 'Could not reach the agent server. Make sure server is running on port 5050.',
           error: true,
         };
         return copy;
@@ -115,7 +115,205 @@ export default function App() {
     } finally {
       setStreaming(false);
     }
-  }, [streaming, messages.length]);
+  }, [streaming]);
+
+  // Handler for live voice input (Gnani Prisma STT -> Evon 3.3 -> DeepSeek -> Timber 2.5 TTS)
+  const handleVoiceSend = useCallback(async (audioBase64: string, format: string) => {
+    if (streaming) return;
+
+    setStreaming(true);
+
+    // Initial placeholder message for the user voice command and AI reply
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'user',
+        text: 'Listening...',
+        originalVoiceText: 'Processing voice with Gnani Prisma...',
+        detectedLang: 'Voice',
+      },
+      { role: 'ai', text: '' },
+    ]);
+
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    let aiText = '';
+    let aiStarted = false;
+
+    const onEvent = (evt: SSEEvent) => {
+      switch (evt.type) {
+        case 'gnani_stt_result':
+          setMessages((prev) => {
+            const copy = [...prev];
+            const userIdx = copy.length - 2;
+            if (userIdx >= 0 && copy[userIdx].role === 'user') {
+              copy[userIdx] = {
+                ...copy[userIdx],
+                originalVoiceText: evt.transcript,
+                detectedLang: evt.language,
+                text: evt.transcript,
+              };
+            }
+            return copy;
+          });
+          break;
+
+        case 'gnani_task_result':
+          setMessages((prev) => {
+            const copy = [...prev];
+            const userIdx = copy.length - 2;
+            if (userIdx >= 0 && copy[userIdx].role === 'user') {
+              copy[userIdx] = {
+                ...copy[userIdx],
+                text: evt.english_task,
+                detectedLang: evt.language,
+              };
+            }
+            return copy;
+          });
+          break;
+
+        case 'tool_call':
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy.splice(copy.length - 1, 0, { role: 'tool_call', name: evt.name, args: evt.args });
+            return copy;
+          });
+          break;
+
+        case 'tool_result':
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy.splice(copy.length - 1, 0, { role: 'tool_result', name: evt.name, preview: evt.preview });
+            return copy;
+          });
+          break;
+
+        case 'ai_message':
+          aiStarted = true;
+          aiText = evt.content;
+          setMessages((prev) => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'ai') {
+              copy[copy.length - 1] = {
+                ...last,
+                text: aiText,
+              };
+            }
+            return copy;
+          });
+          break;
+
+        case 'gnani_native_reply':
+          setMessages((prev) => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'ai') {
+              copy[copy.length - 1] = {
+                ...last,
+                nativeText: evt.text,
+                nativeLanguage: evt.language,
+              };
+            }
+            return copy;
+          });
+          break;
+
+        case 'gnani_audio':
+          // Immediately start playing the synthesized voice from Timber 2.5
+          try {
+            const spokenAudio = new Audio(evt.audio_url);
+            spokenAudio.play().catch((err) => {
+              console.warn('[Gnani Voice] Browser audio auto-play policy notice:', err);
+            });
+          } catch (e) {
+            console.error('[Gnani Voice] Audio playback initialization notice:', e);
+          }
+
+          setMessages((prev) => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'ai') {
+              copy[copy.length - 1] = {
+                ...last,
+                audioUrl: evt.audio_url,
+                nativeText: evt.text,
+                nativeLanguage: evt.language,
+              };
+            }
+            return copy;
+          });
+          break;
+
+        case 'stopped':
+          setMessages((prev) => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'ai') {
+              copy[copy.length - 1] = { ...last, text: evt.content, stopped: true };
+            }
+            return copy;
+          });
+          break;
+
+        case 'error':
+          setMessages((prev) => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'ai') {
+              copy[copy.length - 1] = { ...last, text: evt.content, error: true };
+            }
+            return copy;
+          });
+          break;
+
+        case 'done':
+          if (!aiStarted) {
+            setMessages((prev) => {
+              const copy = [...prev];
+              const last = copy[copy.length - 1];
+              if (last && last.role === 'ai' && !last.text) {
+                copy[copy.length - 1] = { ...last, text: '(Task completed)' };
+              }
+              return copy;
+            });
+          }
+          fetchStatus().then(setContextCount).catch(() => { });
+          break;
+      }
+    };
+
+    try {
+      await streamVoiceChat(audioBase64, format, onEvent, ctrl.signal);
+    } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setMessages((prev) => {
+          const copy = [...prev];
+          const last = copy[copy.length - 1];
+          if (last && last.role === 'ai' && !last.text) {
+            copy[copy.length - 1] = { ...last, text: 'Task stopped by user.', stopped: true };
+          } else if (last && last.role === 'ai') {
+            copy[copy.length - 1] = { ...last, stopped: true };
+          }
+          return copy;
+        });
+        return;
+      }
+      setMessages((prev) => {
+        const copy = [...prev];
+        copy[copy.length - 1] = {
+          role: 'ai',
+          text: `Voice processing error: ${String(err)}`,
+          error: true,
+        };
+        return copy;
+      });
+    } finally {
+      setStreaming(false);
+    }
+  }, [streaming]);
 
   useEffect(() => {
     const webview = (window as any).chrome?.webview;
@@ -148,7 +346,12 @@ export default function App() {
     <div className="panel">
       <Header contextCount={contextCount} onClear={handleClear} />
       <ChatArea messages={messages} isEmpty={messages.length === 0} isStreaming={streaming} />
-      <InputBar onSend={handleSend} onStop={handleStop} streaming={streaming} />
+      <InputBar
+        onSend={handleSend}
+        onVoiceSend={handleVoiceSend}
+        onStop={handleStop}
+        streaming={streaming}
+      />
     </div>
   );
 }
